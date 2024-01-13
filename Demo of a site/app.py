@@ -1,3 +1,4 @@
+# app.py
 from flask import Flask, render_template, request
 import mysql.connector
 
@@ -8,29 +9,45 @@ def connect_db():
         host="localhost",
         user="root",
         password="root",
-        database="fungeo"
+        database="FunGeo"
     )
     return connection
 
-def get_flags():
+def execute_query(query, params=None):
     connection = connect_db()
     cursor = connection.cursor(dictionary=True)
 
+    cursor.execute(query, params)
+    result = cursor.fetchall()
+
+    connection.close()
+    return result
+
+def get_flags(continent=None, population=None, order_by='country_name'):
     query = """
         SELECT Country.country_name, Country.flag_image_url
         FROM Country
     """
+    
+    conditions = []
+    params = {}
 
-    cursor.execute(query)
-    flags_data = cursor.fetchall()
+    if continent:
+        conditions.append("Country.continent_name = %(continent)s")
+        params['continent'] = continent
 
-    connection.close()
-    return flags_data
+    if population:
+        population_value = int(population.replace('Up to ', '').replace(',', ''))
+        conditions.append("Country.population <= %(population)s")
+        params['population'] = population_value
 
-def get_capital_cities():
-    connection = connect_db()
-    cursor = connection.cursor(dictionary=True)
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
 
+    query += f" ORDER BY {order_by}"
+    return execute_query(query, params)
+
+def get_capital_cities(continent=None, order_by='city_name'):
     query = """
         SELECT Country.country_name, City.city_name
         FROM Country
@@ -38,26 +55,42 @@ def get_capital_cities():
         JOIN City ON Capital.city_id = City.city_id
     """
 
-    cursor.execute(query)
-    capital_cities_data = cursor.fetchall()
+    if continent:
+        query += " WHERE Country.continent_name = %(continent)s"
+    
+    query += f" ORDER BY {order_by}"
+    return execute_query(query, {'continent': continent})
 
-    connection.close()
-    return capital_cities_data
-
-def get_currencies():
-    connection = connect_db()
-    cursor = connection.cursor(dictionary=True)
-
+def get_currencies(order_by='currency'):
     query = """
         SELECT Country.country_name, Country.currency
         FROM Country
     """
 
-    cursor.execute(query)
-    currencies_data = cursor.fetchall()
+    query += f" ORDER BY {order_by}"
+    return execute_query(query)
 
-    connection.close()
-    return currencies_data
+def get_currencies_by_continent(continent, order_by='currency'):
+    query = """
+        SELECT Country.country_name, Country.currency
+        FROM Country
+        WHERE Country.continent_name = %(continent)s
+    """
+
+    query += f" ORDER BY {order_by}"
+    return execute_query(query, {'continent': continent})
+
+def get_currencies_by_population(population, order_by='currency'):
+    query = """
+        SELECT Country.country_name, Country.currency
+        FROM Country
+        WHERE Country.population <= %s
+    """
+
+    population_value = int(population.replace('Up to ', '').replace(',', ''))
+
+    query += f" ORDER BY {order_by}"
+    return execute_query(query, (population_value,))
 
 @app.route('/')
 def index():
@@ -69,11 +102,30 @@ def select_topic():
     data = None
 
     if selected_topic == 'flags':
-        data = get_flags()
+        continent = request.form.get('filterOption') if request.form.get('complexity') == 'continent' else None
+        population = request.form.get('filterOption') if request.form.get('complexity') == 'population' else None
+        order_by = request.form.get('order_by', 'country_name')
+
+        data = get_flags(continent=continent, population=population, order_by=order_by)
+
     elif selected_topic == 'capital_cities':
-        data = get_capital_cities()
+        continent = request.form.get('filterOption') if request.form.get('complexity') == 'continent' else None
+        order_by = request.form.get('order_by', 'city_name')
+
+        data = get_capital_cities(continent=continent, order_by=order_by)
+
     elif selected_topic == 'currencies':
-        data = get_currencies()
+        # Handle the case when the user chooses the category of "continent"
+        if request.form.get('advanced_study') == 'on' and request.form.get('complexity') == 'continent':
+            continent = request.form.get('filterOption')
+            data = get_currencies_by_continent(continent)
+        elif request.form.get('advanced_study') == 'on' and request.form.get('complexity') == 'population':
+            population = request.form.get('filterOption')
+            data = get_currencies_by_population(population)
+        else:
+            # Handle other cases (if needed)
+            order_by = request.form.get('order_by', 'currency')
+            data = get_currencies(order_by=order_by)
 
     if data is not None:
         return render_template('result.html', topic=selected_topic, data=data)
