@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>FunGeo</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Explore Country Data</h2>
+        <table>
+            <tr>
+                <th>Country</th>
+                {% if topic == 'flags' %}
+                    <th>Flag Image</th>
+                {% elif topic == 'capital_cities' %}
+                    <th>Capital City</th>
+                {% elif topic == 'currencies' %}
+                    <th>Currency</th>
+                {% endif %}
+            </tr>
+            {% for row in data %}
+                <tr>
+                    <td>{{ row['country_name'] }}</td>
+                    {% if topic == 'flags' %}
+                        <td><img src="{{ row['flag_image_url'] }}" alt="Flag" class="flag-image"></td>
+                    {% elif topic == 'capital_cities' %}
+                        <td>{{ row['city_name'] }}</td>
+                    {% elif topic == 'currencies' %}
+                        <td>{{ row['currency'] }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <a href="/">Back to Home</a>
+    </div>
+</body>
+</html>

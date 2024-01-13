@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>FunGeo</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to FunGeo</h1>
+        <p>Choose a topic for study:</p>
+        <form action="/select_topic" method="post">
+            <label for="topic">Select a Topic:</label>
+            <select name="topic" id="topic">
+                <option value="flags">Flags of countries</option>
+                <option value="capital_cities">Capital cities</option>
+                <option value="currencies">Currencies of countries</option>
+            </select>
+            <br><br>
+            <input type="submit" value="Study">
+        </form>
+    </div>
+</body>
+</html>
