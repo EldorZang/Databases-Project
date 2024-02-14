@@ -1,27 +1,11 @@
 # app.py
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request, url_for
 import mysql.connector
+import dbconnection
 
 app = Flask(__name__)
 
-def connect_db():
-    connection = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="root",
-        database="FunGeo"
-    )
-    return connection
 
-def execute_query(query, params=None):
-    connection = connect_db()
-    cursor = connection.cursor(dictionary=True)
-
-    cursor.execute(query, params)
-    result = cursor.fetchall()
-
-    connection.close()
-    return result
 
 def get_flags(continent=None, population=None, order_by='country_name'):
     query = """
@@ -92,9 +76,26 @@ def get_currencies_by_population(population, order_by='currency'):
     query += f" ORDER BY {order_by}"
     return execute_query(query, (population_value,))
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        if username == 'bob' and password == '1234':
+            # Successful login, redirect to main menu
+            return redirect(url_for('main_menu'))
+        else:
+            # Incorrect username or password, set error message
+            error = 'Incorrect username or password. Please try again.'
+    
+    # Render the login page with error message (if any)
+    return render_template('login.html', error=error)
+
+@app.route('/main_menu')
+def main_menu():
+    return render_template('main_menu.html')
 
 @app.route('/select_topic', methods=['POST'])
 def select_topic():

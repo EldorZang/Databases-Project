@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Login</h1>
+        <form action="#" method="post">
+            <label for="username">Username:</label>
+            <div class="input-row">
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <div>
+                <input type="checkbox" id="showPassword">Show Password
+            </div>
+
+            <p style="color: red;">
+                {% if error %}
+                {{ error }}
+                {% endif %}
+            </p>
+            <input type="submit" value="Login">
+        </form>
+    </div>
+
+    <script>
+        // JavaScript code to toggle password visibility
+        const passwordField = document.getElementById('password');
+        const showPasswordCheckbox = document.getElementById('showPassword');
+
+        showPasswordCheckbox.addEventListener('change', function () {
+            if (showPasswordCheckbox.checked) {
+                passwordField.type = 'text'; // Show password
+            } else {
+                passwordField.type = 'password'; // Hide password
+            }
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorMessage = urlParams.get('error');
+        if (errorMessage) {
+            const errorMessageElement = document.createElement('p');
+            errorMessageElement.textContent = errorMessage;
+            errorMessageElement.style.color = 'red';
+            document.body.appendChild(errorMessageElement);
+        }
+    </script>
+</body>
+
+</html>
