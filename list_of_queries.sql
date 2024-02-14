@@ -394,7 +394,6 @@ ORDER BY
     RAND()
 LIMIT 1;
 -- Step 2: Select three random countries from the same continent as options, excluding the country where the currency is used
--- Step 2: Select three random countries from the same continent as options, excluding the country where the currency is 'EUR' and excluding the country 'Israel'
 SELECT DISTINCT
     CO1.country_name AS option_1,
     CO2.country_name AS option_2,
