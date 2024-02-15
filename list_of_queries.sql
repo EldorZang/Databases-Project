@@ -32,7 +32,7 @@ SELECT * FROM User WHERE username = $username;
 UPDATE User SET password_hash = $new_password_hash WHERE username = $username;
 
 -- Delete user's profile and related data
-DELETE FROM User WHERE user_id = 'user_id';
+DELETE FROM User WHERE username = '$username';
 DELETE FROM Exam WHERE user_id = 'user_id';
 
 -- Count the number of registered users
