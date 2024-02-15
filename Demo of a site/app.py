@@ -1,10 +1,10 @@
 # app.py
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, session, url_for
 import mysql.connector
 import dbconnection
 
 app = Flask(__name__)
-
+app.secret_key = 'secret_key'
 
 
 def get_flags(continent=None, population=None, order_by='country_name'):
@@ -76,7 +76,11 @@ def get_currencies_by_population(population, order_by='currency'):
     query += f" ORDER BY {order_by}"
     return execute_query(query, (population_value,))
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
+def index():
+    return redirect(url_for('login')) 
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
     if request.method == 'POST':
@@ -85,6 +89,7 @@ def login():
         
         if username == 'bob' and password == '1234':
             # Successful login, redirect to main menu
+            session['username'] = username
             return redirect(url_for('main_menu'))
         else:
             # Incorrect username or password, set error message
@@ -132,6 +137,21 @@ def select_topic():
         return render_template('result.html', topic=selected_topic, data=data)
     else:
         return render_template('error.html')
+
+
+@app.route('/user_personal_area')
+def personal_area():
+    if 'username' in session:
+        current_username = session['username']  # Retrieve current username from session
+        return render_template('user_personal_area.html', current_username=current_username)
+    else:
+        return redirect(url_for('login'))  # Redirect to login page if user not logged in
+
+@app.route('/logout')
+def logout():
+    # Clear username from session
+    session.pop('username', None)
+    return redirect(url_for('login'))  # Redirect to login page after logout
 
 if __name__ == '__main__':
     app.run(debug=True)

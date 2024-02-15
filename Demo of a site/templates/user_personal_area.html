@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Area</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>Personal Area</h1>
+    <p>Welcome to your personal area!</p>
+    <h2>Update Username and Password</h2>
+    <form action="/update" method="post">
+        <div class="input-row">
+            <label for="newUsername">New Username:</label>
+            <input type="text" id="newUsername" name="newUsername" placeholder="Enter your new username" required>
+        </div>
+        <br>
+        <div class="input-row">
+            <label for="newPassword">New Password:</label>
+            <input type="password" id="newPassword" name="newPassword" placeholder="Enter your new password" required>
+        </div>
+        <br>
+        <input type="submit" value="Update">
+    </form>
+</div>
+
+</body>
+</html>
