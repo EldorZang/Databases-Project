@@ -18,3 +18,10 @@ def execute_query(query, params=None):
 
     connection.close()
     return result
+
+def execute_update(query,params=None):
+        connection = connect_db()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(query,params)
+        connection.commit()
+        connection.close()

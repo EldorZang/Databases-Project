@@ -177,12 +177,12 @@ td {
 /* Update the styles in styles.css */
 
 .menu-options {
-    display: flex;
+    display:flex;
     flex-wrap: wrap;
 }
 
 .menu-option {
-    flex: 1;
+
     margin: 10px;
     padding: 20px;
     background-color: #f5f5f5;

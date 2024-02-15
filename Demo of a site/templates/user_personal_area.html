@@ -10,14 +10,9 @@
 
 <div class="container">
     <h1>Personal Area</h1>
-    <p>Welcome to your personal area!</p>
-    <h2>Update Username and Password</h2>
-    <form action="/update" method="post">
-        <div class="input-row">
-            <label for="newUsername">New Username:</label>
-            <input type="text" id="newUsername" name="newUsername" placeholder="Enter your new username" required>
-        </div>
-        <br>
+    <p>Welcome to your personal area, {{ current_username }}!</p> <!-- Display current username -->
+    <h2>Update Password</h2>
+    <form action="/user_personal_area" method="post">
         <div class="input-row">
             <label for="newPassword">New Password:</label>
             <input type="password" id="newPassword" name="newPassword" placeholder="Enter your new password" required>
@@ -25,7 +20,22 @@
         <br>
         <input type="submit" value="Update">
     </form>
+    <a href="/main_menu" class="menu-option">Back to Main Menu</a> <!-- Back to main menu button -->
+    <button class="delete-button" onclick="deleteUserData()">Delete User Data</button> <!-- Delete user data button -->
 </div>
 
+<script>
+        function deleteUserData() {
+            // Perform deletion of user data here
+            var confirmation = confirm("Are you sure you want to delete your user data?");
+            if (confirmation) {
+                // User clicked OK, redirect to delete route
+                window.location.href = "/delete_user"; // Redirect to delete route
+            } else {
+                // User clicked Cancel, do nothing
+                alert("Deletion canceled.");
+            }
+        }
+</script>
 </body>
 </html>

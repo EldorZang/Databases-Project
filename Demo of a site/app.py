@@ -2,7 +2,7 @@
 from flask import Flask, redirect, render_template, request, session, url_for
 import mysql.connector
 import dbconnection
-
+import user_queries
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
@@ -87,7 +87,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         
-        if username == 'bob' and password == '1234':
+        if user_queries.authenticate_login(username,password):
             # Successful login, redirect to main menu
             session['username'] = username
             return redirect(url_for('main_menu'))
@@ -139,11 +139,18 @@ def select_topic():
         return render_template('error.html')
 
 
-@app.route('/user_personal_area')
+@app.route('/user_personal_area', methods=['GET', 'POST'])
 def personal_area():
     if 'username' in session:
         current_username = session['username']  # Retrieve current username from session
-        return render_template('user_personal_area.html', current_username=current_username)
+        if request.method == 'GET':
+            return render_template('user_personal_area.html', current_username=current_username)
+        if request.method == 'POST':
+            newPassword = request.form['newPassword']
+            user_queries.update_password(current_username,newPassword)
+            return redirect(url_for('main_menu'))
+
+
     else:
         return redirect(url_for('login'))  # Redirect to login page if user not logged in
 
@@ -152,6 +159,26 @@ def logout():
     # Clear username from session
     session.pop('username', None)
     return redirect(url_for('login'))  # Redirect to login page after logout
+
+@app.route('/delete_user')
+def delete_user():
+    if 'username' in session:
+        current_username = session['username']
+        user_queries.delete_user(current_username)
+        session.pop('username', None)
+    return redirect(url_for('login'))  # Redirect to login page after logout
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user_queries.register(username,password)
+        return redirect(url_for('login'))  # Redirect to login page after registration
+
+    users_count = user_queries.count_uesrs()
+    return render_template('register.html',users_count=users_count)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
