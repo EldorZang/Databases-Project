@@ -24,7 +24,7 @@
 
     <div class="container">
         <h1>Learn</h1>
-        <form id="searchForm" action="/learn" method="post">
+        <form id="searchForm" action="/learn" method="post" onsubmit="return validateForm()">
             <div class="search-container">
                 <input type="text" id="searchInput" name="searchInput" placeholder="Search country by name">
                 <input type="submit" value="Search">
@@ -33,7 +33,6 @@
             <!-- Checkboxes for options -->
             <div class="options">
                 <label><input type="checkbox" name="option" value="country_code"> Country Code</label>
-
                 <label><input type="checkbox" name="option" value="flag_image_url"> Flag</label>
                 <label><input type="checkbox" name="option" value="country_name"> Name</label>
                 <label><input type="checkbox" name="option" value="continent_name"> Continent</label>
@@ -41,13 +40,27 @@
                 <label><input type="checkbox" name="option" value="capital"> Capital</label>
                 <label><input type="checkbox" name="option" value="population"> Population</label>
                 <label><input type="checkbox" name="option" value="currency"> Currency</label>
-
-
             </div>
         </form>
-
     </div>
 
+    <script>
+        function validateForm() {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"][name="option"]');
+            var checked = false;
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    checked = true;
+                    break;
+                }
+            }
+            if (!checked) {
+                alert("Please select at least one option.");
+                return false;
+            }
+            return true;
+        }
+    </script>
 
 </body>
 
