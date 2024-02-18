@@ -1,11 +1,14 @@
 # app.py
-from flask import Flask, redirect, render_template, request, session, url_for
+import json
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 import mysql.connector
 import dbconnection
+from learn_queries import get_countries_data
 import user_queries
 app = Flask(__name__)
-app.secret_key = 'secret_key'
-
+app.secret_key = 'secret_key123'
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
 
 def get_flags(continent=None, population=None, order_by='country_name'):
     query = """
@@ -178,6 +181,27 @@ def register():
 
     users_count = user_queries.count_uesrs()
     return render_template('register.html',users_count=users_count)
+
+
+@app.route('/learn_results')
+def learn_results():
+    data = app.data
+    columns = json.loads(request.args.get('options'))
+    return render_template('learn_results.html', countries=data,options=columns)
+
+
+
+@app.route('/learn', methods=['GET', 'POST'])
+def learn():
+    if request.method == 'POST':
+        country_input = request.form['searchInput']
+        columns = request.form.getlist('option')
+        data = get_countries_data(country_input,columns)
+        selected_options = [{'name': col.capitalize()} for col in columns]
+        app.data = data
+        return redirect(url_for('learn_results',options=json.dumps(selected_options)))
+
+    return render_template('learn.html')
 
 
 if __name__ == '__main__':

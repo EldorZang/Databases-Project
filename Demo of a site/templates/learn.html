@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .options {
+            display: inline-block;
+            /* Display checkboxes inline */
+            margin-top: 10px;
+        }
+
+        .options label {
+            margin-right: 20px;
+            /* Add some spacing between checkboxes */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Learn</h1>
+        <form id="searchForm" action="/learn" method="post">
+            <div class="search-container">
+                <input type="text" id="searchInput" name="searchInput" placeholder="Search country by name">
+                <input type="submit" value="Search">
+            </div>
+
+            <!-- Checkboxes for options -->
+            <div class="options">
+                <label><input type="checkbox" name="option" value="country_code"> Country Code</label>
+
+                <label><input type="checkbox" name="option" value="flag_image_url"> Flag</label>
+                <label><input type="checkbox" name="option" value="country_name"> Name</label>
+                <label><input type="checkbox" name="option" value="continent_name"> Continent</label>
+                <label><input type="checkbox" name="option" value="region"> Region</label>
+                <label><input type="checkbox" name="option" value="capital"> Capital</label>
+                <label><input type="checkbox" name="option" value="population"> Population</label>
+                <label><input type="checkbox" name="option" value="currency"> Currency</label>
+
+
+            </div>
+        </form>
+
+    </div>
+
+
+</body>
+
+</html>

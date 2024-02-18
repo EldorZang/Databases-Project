@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .scroll-box,.results {
+            max-height: 300px;
+            /* Set maximum height for the scroll box */
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container" style="display: grid;">
+        <h1>Search Results</h1>
+
+                <div class="scroll-box"></div>
+            <table>
+                <thead>
+                    <tr>
+                        {% for option in options %}
+                        <th>{{ option.name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for country in countries %}
+                    <tr>
+                        {% for option in options %}
+                        {% if option.name.lower() == 'flag_image_url' %}
+                        <td><img src="{{ country['flag_image_url']}}" alt="Flag" class="flag-image"></td>
+                        {% else %}
+                        <td>{{ country[option.name.lower()] }}</td>
+                        {%endif%}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+</body>
+
+</html>
