@@ -7,21 +7,80 @@
     <title>Search Results</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
-        .scroll-box,.results {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 20px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            text-align: center;
+            color: #333333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #f9f9f9; /* Updated table background color */
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #cccccc;
+        }
+
+        th {
+            background-color: #007bff; /* Updated table header background color */
+            color: #ffffff; /* Text color for table header */
+            font-weight: bold;
+        }
+
+        .flag-image {
+            max-width: 50px;
+            max-height: 30px;
+        }
+
+        .scroll-box {
             max-height: 300px;
-            /* Set maximum height for the scroll box */
             overflow-y: auto;
-            /* Enable vertical scrolling */
+        }
+
+        .back-button {
+            margin-top: 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container" style="display: grid;">
+    <div class="container">
         <h1>Search Results</h1>
-
-                <div class="scroll-box"></div>
+        <div class="scroll-box">
             <table>
                 <thead>
                     <tr>
@@ -44,8 +103,15 @@
                     {% endfor %}
                 </tbody>
             </table>
-            </div>
         </div>
+        <button onclick="goBack()" class="back-button">Go Back</button>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
 
 </body>
 
