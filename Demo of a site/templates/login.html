@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome for icons -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,7 +47,7 @@
 
         input[type="text"],
         input[type="password"] {
-            width: calc(100% - 24px);
+            width: calc(100% - 44px); /* Adjusted width for the icon */
             padding: 12px;
             margin: 8px 0;
             border: 1px solid #cccccc;
@@ -54,12 +55,27 @@
             box-sizing: border-box;
             font-size: 16px;
             transition: border-color 0.3s ease;
+            position: relative; /* Added position relative for icon positioning */
         }
 
         input[type="text"]:focus,
         input[type="password"]:focus {
             outline: none;
             border-color: #007bff;
+        }
+
+        .show-password-icon {
+            position: absolute;
+            right: 26px; /* Adjusted position for 1 cm to the right */
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #777777;
+            z-index: 1; /* Ensure the icon is above the input field */
+        }
+
+        .show-password-icon:hover {
+            color: #333333;
         }
 
         input[type="submit"] {
@@ -102,15 +118,19 @@
 <body>
 
     <div class="container">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 300px; display: block; margin: 0 auto;"> <!-- Logo -->
         <h1>Login</h1>
         <form action="#" method="post">
             <div>
-                <label  for="username">Username:</label>
+                <label for="username">Username:</label>
                 <input type="text" id="username" name="username" placeholder="Enter your username" required>
             </div>
             <div>
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <div style="position: relative;"> <!-- Adjusted positioning for the input field -->
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <i class="far fa-eye show-password-icon" onclick="togglePassword()"></i> <!-- Icon for toggling password visibility -->
+                </div>
             </div>
             <input type="submit" value="Login">
             <p class="error-message">
@@ -121,6 +141,17 @@
         </form>
         <a href="/register" class="menu-option">Don't have an account? Register</a> <!-- Register button -->
     </div>
+
+    <script>
+        function togglePassword() {
+            var passwordField = document.getElementById("password");
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+            } else {
+                passwordField.type = "password";
+            }
+        }
+    </script>
 
 </body>
 
