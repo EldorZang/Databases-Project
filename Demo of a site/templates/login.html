@@ -7,117 +7,11 @@
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome for icons -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 400px;
-            max-width: 90%;
-            text-align: center;
-        }
-
-        h1 {
-            margin-top: 0;
-            margin-bottom: 30px;
-            color: #333333;
-            font-size: 32px;
-            text-align: center; /* Center the title */
-        }
-
-        label {
-            font-weight: bold;
-            color: #333333;
-            display: block;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: calc(100% - 44px); /* Adjusted width for the icon */
-            padding: 12px;
-            margin: 8px 0;
-            border: 1px solid #cccccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-            position: relative; /* Added position relative for icon positioning */
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #007bff;
-        }
-
-        .show-password-icon {
-            position: absolute;
-            right: 26px; /* Adjusted position for 1 cm to the right */
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #777777;
-            z-index: 1; /* Ensure the icon is above the input field */
-        }
-
-        .show-password-icon:hover {
-            color: #333333;
-        }
-
-        input[type="submit"] {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 14px 0;
-            cursor: pointer;
-            font-size: 18px;
-            width: 100%;
-            transition: background-color 0.3s ease;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-
-        .menu-option {
-            display: block;
-            text-decoration: none;
-            color: #007bff;
-            margin-top: 20px;
-            font-size: 16px;
-            transition: color 0.3s ease;
-        }
-
-        .menu-option:hover {
-            color: #0056b3;
-        }
-
-        .error-message {
-            color: red;
-            margin-top: 20px;
-            font-size: 16px;
-        }
-    </style>
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="container2">
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width: 300px; display: block; margin: 0 auto;"> <!-- Logo -->
         <h1>Login</h1>
         <form action="#" method="post">
