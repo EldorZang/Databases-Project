@@ -173,13 +173,17 @@ def delete_user():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    users_count = user_queries.count_uesrs()
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user_queries.register(username,password)
-        return redirect(url_for('login'))  # Redirect to login page after registration
-
-    users_count = user_queries.count_uesrs()
+        if user_queries.register(username,password):
+            return redirect(url_for('login'))  # Redirect to login page after registration
+        else:
+            # User already exists, set error message
+            error = 'User already exists. Please choose a different username.'
+            # Render the register page with error message (if any)
+            return render_template('register.html', users_count=users_count,error=error)
     return render_template('register.html',users_count=users_count)
 
 

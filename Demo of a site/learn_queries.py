@@ -22,9 +22,6 @@ def get_countries_data(country_name,columns):
     res = dbconnection.execute_query(query)
     return res
 
-print(get_countries_data('Israel',['capital']))
-
-
 
 
 

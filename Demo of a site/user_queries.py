@@ -1,30 +1,31 @@
 import dbconnection
+
+def user_exists(username):
+    params = {'username': username}
+    res = dbconnection.execute_query("SELECT COUNT(*) AS user_count FROM User WHERE username = %(username)s", params)
+    return res[0]['user_count'] > 0
+
 def register(username,password):
-    params = {}
-    params['username'] = username
-    params['password_hash'] = password
+    # Check if the user already exists
+    if user_exists(username):
+        return False
+    params = {'username':username,'password_hash':password}
     dbconnection.execute_update("INSERT INTO User (username, password_hash) VALUES (%(username)s, %(password_hash)s)",params)
+    return True
 
 def authenticate_login(username,password):
-    params = {}
-    params['username'] = username
-    params['password_hash'] = password
+    params = {'username':username,'password_hash':password}
     res = dbconnection.execute_query("SELECT * FROM User WHERE username = %(username)s AND password_hash = %(password_hash)s",params)
-    if res:
-        return True
-    else:
-        return False 
+    return res 
     
 def update_password(username,newpassword):
-    params = {}
-    params['username'] = username
-    params['new_password_hash'] = newpassword
+    params = {'username':username,'new_password_hash':newpassword}
     dbconnection.execute_update("UPDATE User SET password_hash = %(new_password_hash)s WHERE username =  %(username)s",params)
 
 
+
 def delete_user(username):
-    params = {}
-    params['username'] = username
+    params = {'username': username}
     dbconnection.execute_update("DELETE FROM User WHERE username =  %(username)s",params)
 
 def count_uesrs():

@@ -27,6 +27,11 @@
                 </div>
             </div>
             <input type="submit" value="Register">
+            <p class="error-message">
+                {% if error %}
+                {{ error }}
+                {% endif %}
+            </p>
         </form>
         <a href="/login" class="menu-option">Back to Login</a> <!-- Back to login button -->
     </div>
