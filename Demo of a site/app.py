@@ -1,9 +1,7 @@
 # app.py
 import json
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
-import mysql.connector
-import dbconnection
-from learn_queries import get_countries_data
+from learn_queries import get_countries_data , get_complex_data
 import user_queries
 app = Flask(__name__)
 app.secret_key = 'secret_key123'
@@ -200,12 +198,23 @@ def learn():
     if request.method == 'POST':
         country_input = request.form['searchInput']
         columns = request.form.getlist('option')
-        data = get_countries_data(country_input,columns)
+        data = None
         selected_options = [{'name': col.capitalize()} for col in columns]
+        
+        if 'advanced_study' in request.form:
+            complexity = request.form['complexity']
+            filter_option = request.form['filterOption']
+            data = get_complex_data(country_input, columns, complexity, filter_option)
+            # selected_options.append({'name': complexity.capitalize(), 'value': filter_option})
+
+        else:
+            data = get_countries_data(country_input, columns)
+
         app.data = data
-        return redirect(url_for('learn_results',options=json.dumps(selected_options)))
+        return redirect(url_for('learn_results', options=json.dumps(selected_options)))
 
     return render_template('learn.html')
+
 
 
 if __name__ == '__main__':
