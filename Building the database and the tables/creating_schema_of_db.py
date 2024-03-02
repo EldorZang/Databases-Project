@@ -73,6 +73,7 @@ cursor.execute("""
         city_id INT AUTO_INCREMENT PRIMARY KEY,
         city_name VARCHAR(255) NOT NULL,
         country_code VARCHAR(255) NOT NULL,
+        population INT,
         FOREIGN KEY (country_code) REFERENCES Country(country_code)
     )
 """)

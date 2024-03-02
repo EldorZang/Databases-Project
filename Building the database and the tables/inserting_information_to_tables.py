@@ -67,22 +67,16 @@ def country_code_exists(country_code):
 
 # Function to insert data into the City table
 def insert_city_data():
-    with zipfile.ZipFile("worldcitiespop.zip", "r") as zip_ref:
-        # Assuming there's only one file in the zip archive
-        csv_filename = zip_ref.namelist()[0]
-        with zip_ref.open(csv_filename) as csv_file:
-            cities_pop_df = pd.read_csv(csv_file, low_memory=False)
+    cities_df = pd.read_excel("geonames-all-cities-with-a-population-1000.xlsx")
 
-            # Capitalize values in the "Country" column
-            cities_pop_df['Country'] = cities_pop_df['Country'].str.upper()
+    for _, row in cities_df.iterrows():
+        country_code = str(row['Country Code']).strip().upper()  # Convert country code to uppercase
+        city_name = str(row['Name']).strip() if not pd.isnull(row['Name']) else 'UNKNOWN'
+        population = row['Population'] if not pd.isnull(row['Population']) else 0  # Assuming population column is numeric
 
-            for _, row in cities_pop_df.iterrows():
-                country_code = str(row['Country']).strip().upper()  # Convert country code to uppercase
-
-                # Check if the country code exists in the Country table before inserting
-                if country_code_exists(country_code):
-                    city_name = str(row['AccentCity']).strip() if not pd.isnull(row['AccentCity']) else 'UNKNOWN'
-                    insert_data("City", ["city_name", "country_code"], (city_name, country_code))
+        # Check if the country code exists in the Country table before inserting
+        if country_code_exists(country_code):
+            insert_data("City", ["city_name", "country_code", "population"], (city_name, country_code, population))
 
 # Function to insert data into the Capital table
 def insert_capital_data():
@@ -91,6 +85,7 @@ def insert_capital_data():
     for _, row in world_data_df.iterrows():
         country_abbreviation = str(row['Abbreviation']).strip()
         city_name = str(row['Capital/Major City']).strip()
+        population = int(row['Population'].replace(',', '')) if not pd.isnull(row['Population']) else 0  # Assuming population column is numeric
 
         if country_abbreviation not in ['BQ', 'KR', 'PS', 'SH'] and not pd.isnull(country_abbreviation):
             cursor.execute("SELECT country_code FROM Country WHERE country_code = %s", (country_abbreviation,))
@@ -103,8 +98,7 @@ def insert_capital_data():
                 if city_result:
                     city_id = city_result[0]
                 else:
-                    cursor.execute("INSERT INTO City (city_name, country_code) VALUES (%s, %s)", (city_name, country_abbreviation))
-                    connection.commit()
+                    insert_data("City", ["city_name", "country_code", "population"], (city_name, country_code, population))
 
                     cursor.execute("SELECT city_id FROM City WHERE city_name = %s", (city_name,))
                     city_result = cursor.fetchone()
@@ -112,7 +106,11 @@ def insert_capital_data():
 
                 country_code = country_abbreviation
 
-                insert_data("Capital", ["country_code", "city_id"], (country_code, city_id))
+                cursor.execute("SELECT country_code FROM Capital WHERE city_id = %s", (city_id,))
+                country_code_result = cursor.fetchone()
+
+                if not country_code_result:
+                    insert_data("Capital", ["country_code", "city_id"], (country_code, city_id))
 
 # Function to insert data into the Continent table
 def insert_continent_data():
@@ -121,9 +119,9 @@ def insert_continent_data():
         insert_data("Continent", ["continent_name"], (value,))
 
 # Uncomment the function calls based on your needs
-insert_continent_data()
-insert_country_data()
-insert_city_data()
+#insert_continent_data()
+#insert_country_data()
+#insert_city_data()
 insert_capital_data()
 
 # Close the connection
