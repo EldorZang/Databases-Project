@@ -2,6 +2,7 @@ import mysql.connector
 import pandas as pd
 import random
 import string
+import zipfile
 
 # Connect to the MySQL server
 connection = mysql.connector.connect(
@@ -56,19 +57,32 @@ def insert_country_data():
             insert_data("Country", ["country_code", "flag_image_url", "country_name", "region", "population", "currency", "continent_name"],
                         (country_code, flag_image_url, country_name, region, population, currency, continent_name))
 
+# Function to check if the country code exists in the Country table
+def country_code_exists(country_code):
+    # Execute a SQL query to check for the existence of the country code
+    query = "SELECT * FROM Country WHERE country_code = %s"
+    # Execute the query and check if any rows are returned
+    result = cursor.execute(query, (country_code,))
+    return cursor.fetchone() is not None
+
 # Function to insert data into the City table
 def insert_city_data():
-    cities_df = pd.read_csv("worldcities.csv")
-    countries_df = pd.read_csv("countries_continents_codes_flags_url.csv")
+    with zipfile.ZipFile("worldcitiespop.zip", "r") as zip_ref:
+        # Assuming there's only one file in the zip archive
+        csv_filename = zip_ref.namelist()[0]
+        with zip_ref.open(csv_filename) as csv_file:
+            cities_pop_df = pd.read_csv(csv_file, low_memory=False)
 
-    cities_df = cities_df.merge(countries_df[['country', 'alpha-2']], how='left', left_on='iso2', right_on='alpha-2')
+            # Capitalize values in the "Country" column
+            cities_pop_df['Country'] = cities_pop_df['Country'].str.upper()
 
-    for _, row in cities_df.iterrows():
-        country_code = str(row['alpha-2']).strip()
+            for _, row in cities_pop_df.iterrows():
+                country_code = str(row['Country']).strip().upper()  # Convert country code to uppercase
 
-        if country_code not in ['BQ', 'KR', 'PS', 'SH', 'nan'] and not pd.isnull(country_code):
-            city_name = str(row['city_ascii']).strip() if not pd.isnull(row['city_ascii']) else 'UNKNOWN'
-            insert_data("City", ["city_name", "country_code"], (city_name, country_code))
+                # Check if the country code exists in the Country table before inserting
+                if country_code_exists(country_code):
+                    city_name = str(row['AccentCity']).strip() if not pd.isnull(row['AccentCity']) else 'UNKNOWN'
+                    insert_data("City", ["city_name", "country_code"], (city_name, country_code))
 
 # Function to insert data into the Capital table
 def insert_capital_data():
