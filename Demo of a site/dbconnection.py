@@ -45,7 +45,7 @@ def connect_db():
         connection = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="root2",
+            password="root",
             database="FunGeo"
         )
         return connection
