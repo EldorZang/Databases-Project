@@ -1,50 +1,80 @@
 import mysql.connector
-import sys
+
+class DatabaseConnectionError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"Database Connection Error: {self.message}"
+
+class DatabaseQueryError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"Database Query Error: {self.message}"
+
+class UserExistsError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"User Exists Error: {self.message}"
+
+class AuthenticationError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"Authentication Error: {self.message}"
+
+class DatabaseError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"Database Error: {self.message}"
 
 def connect_db():
-    connection = None
     try:
         connection = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="root",
+            password="root2",
             database="FunGeo"
         )
         return connection
     except mysql.connector.errors.ProgrammingError as err:
-        print("Error connecting to the database:", err)
-        print("Access denied. Please check your database username and password.")
-        sys.exit(1)
+        raise DatabaseConnectionError("Please check your database connection settings.") from err
     except mysql.connector.Error as err:
-        print("Error connecting to the database:", err)
-        print("Please check your database connection settings.")
-        sys.exit(1)
+        raise DatabaseConnectionError("Please check your database connection settings.") from err
 
 def execute_query(query, params=None):
-    connection = connect_db()
     try:
+        connection = connect_db()
         cursor = connection.cursor(dictionary=True)
         cursor.execute(query, params)
         result = cursor.fetchall()
         return result
     except mysql.connector.Error as err:
-        print("Error executing query:", err)
-        print("An error occurred while fetching data from the database.")
-        # sys.exit(1)
+        raise DatabaseQueryError("An error occurred while fetching data from the database.") from err
     finally:
-        if connection:
+        if 'connection' in locals():
             connection.close()
 
 def execute_update(query, params=None):
-    connection = connect_db()
     try:
+        connection = connect_db()
         cursor = connection.cursor(dictionary=True)
         cursor.execute(query, params)
         connection.commit()
     except mysql.connector.Error as err:
-        print("Error updating data:", err)
-        print("An error occurred while updating data in the database.")
-        # sys.exit(1)
+        raise DatabaseQueryError("An error occurred while updating data in the database.") from err
     finally:
-        if connection:
+        if 'connection' in locals():
             connection.close()
