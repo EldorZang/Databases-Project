@@ -10,23 +10,61 @@
 
 <body>
 
-    <div class="container2">
+    <div class="container">
         <h1>Personal Area</h1>
         <p>Welcome to your personal area, {{ current_username }}!</p> <!-- Display current username -->
-        <h2>Update Password</h2>
-        <form action="/user_personal_area" method="post">
-            <div class="input-row">
-                <label for="newPassword">New Password:</label>
-                <input type="password" id="newPassword" name="newPassword" placeholder="Enter your new password" required>
-            </div>
-            <input type="submit" value="Update">
-        </form>
-        <button class="delete-button" onclick="deleteUserData()">Delete User Data</button> <!-- Delete user data button -->
+        <!-- Activity Statistics -->
+        <button class="collapsible">Activity Statistics</button>
+        <div class="content activity-stats">
+            <h3>Activity Information</h3>
+            <ul>
+                <li>Amount of subjects studied: <span id="subjectsStudied">{{ subjects_studied }}</span></li> <!-- Display amount of subjects studied -->
+                <li>Average score: <span id="averageScore">{{ average_score | default(0) }}</span></li> <!-- Display average score -->
+                <li>Subjects studied exclusively by the user: <span id="exclusiveSubjects">{{ exclusive_subjects }}</span></li> <!-- Display subjects studied exclusively by the user -->
+                <li>Subjects where the user received the highest grade: <span id="highestGradeSubjects">{{ highest_grade_subjects }}</span></li> <!-- Display subjects where the user received the highest grade -->
+            </ul>
+        </div>
+
+        <!-- Update Password -->
+        <button class="collapsible">Update Password</button>
+        <div class="content">
+            <form action="/user_personal_area" method="post">
+                <div class="input-row">
+                    <label for="newPassword">New Password:</label>
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Enter your new password" required>
+                </div>
+                <input type="submit" value="Update">
+            </form>
+        </div>
+
+        <!-- Delete User Data -->
+        <button class="collapsible">Delete User Data</button>
+        <div class="content">
+            <button class="delete-button" onclick="deleteUserData()">Delete User Data</button>
+        </div>
+
         <!-- Back to main menu button -->
         <a href="/main_menu" class="menu-option">Back to Main Menu</a>
     </div>
 
     <script>
+        // Function to handle collapsible sections
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        }
+
+        // Function to confirm user data deletion
         function deleteUserData() {
             var confirmation = confirm("Are you sure you want to delete your user data?");
             if (confirmation) {

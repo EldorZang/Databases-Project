@@ -157,7 +157,18 @@ def personal_area():
     if 'username' in session:
         current_username = session['username']  # Retrieve current username from session
         if request.method == 'GET':
-            return render_template('user_personal_area.html', current_username=current_username)
+            # Retrieve additional statistics
+            subjects_studied = user_queries.amount_of_subjects_studied(current_username)
+            average_score = user_queries.average_score(current_username)
+            if average_score is None:
+                average_score = 0
+            exclusive_subjects = user_queries.subjects_unstudied_by_others(current_username)
+            highest_grade_subjects = user_queries.subjects_with_higher_grades(current_username)
+            
+            return render_template('user_personal_area.html', current_username=current_username,
+                                   subjects_studied=subjects_studied,
+                                   average_score=average_score, exclusive_subjects=exclusive_subjects,
+                                   highest_grade_subjects=highest_grade_subjects)
         if request.method == 'POST':
             try:
                 newPassword = request.form['newPassword']
@@ -168,6 +179,7 @@ def personal_area():
 
     else:
         return redirect(url_for('login'))  # Redirect to login page if user not logged in
+
 
 @app.route('/logout')
 def logout():
