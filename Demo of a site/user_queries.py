@@ -1,17 +1,26 @@
+from mysql.connector import IntegrityError
 import dbconnection
-
+"""
 def user_exists(username):
     params = {'username': username}
     res = dbconnection.execute_query("SELECT COUNT(*) AS user_count FROM User WHERE username = %(username)s", params)
     return res[0]['user_count'] > 0
-
+"""
 def register(username,password):
+    """
     # Check if the user already exists
     if user_exists(username):
         return False
-    params = {'username':username,'password_hash':password}
-    dbconnection.execute_update("INSERT INTO User (username, password_hash) VALUES (%(username)s, %(password_hash)s)",params)
-    return True
+    """
+    try:
+        params = {'username':username,'password_hash':password}
+        dbconnection.execute_update("INSERT INTO User (username, password_hash) VALUES (%(username)s, %(password_hash)s)",params)
+    # Case the user name already exists
+    except IntegrityError:
+        return "IntegrityError"
+    except Exception as e:
+        raise Exception(e)
+    return "Success"
 
 def authenticate_login(username,password):
     params = {'username':username,'password_hash':password}

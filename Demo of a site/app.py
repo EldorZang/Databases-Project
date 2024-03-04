@@ -76,10 +76,20 @@ def get_currencies_by_population(population, order_by='currency'):
 
     query += f" ORDER BY {order_by}"
     return execute_query(query, (population_value,))
-
+'''
 @app.route('/')
 def index():
     return redirect(url_for('login')) 
+'''
+@app.errorhandler(Exception)
+def handle_error(error):
+    # Custom error handling logic
+    error_message = str(error)
+    return render_template('error.html', error_message=error_message), 500  # Render custom error page with error message and status code
+
+@app.route('/')
+def index():
+    return render_template('polygon.html') 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -175,13 +185,16 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if user_queries.register(username,password):
+        status = user_queries.register(username,password)
+        if status =='Success':
             return redirect(url_for('login'))  # Redirect to login page after registration
-        else:
+        elif status=="IntegrityError":
             # User already exists, set error message
             error = 'User already exists. Please choose a different username.'
             # Render the register page with error message (if any)
             return render_template('register.html', users_count=users_count,error=error)
+        else:
+            raise Exception(status)
     return render_template('register.html',users_count=users_count)
 
 

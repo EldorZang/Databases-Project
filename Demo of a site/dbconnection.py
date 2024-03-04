@@ -1,5 +1,6 @@
 import mysql.connector
 import sys
+from mysql.connector import IntegrityError
 
 def connect_db():
     connection = None
@@ -7,18 +8,14 @@ def connect_db():
         connection = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="root",
+            password="123456",
             database="FunGeo"
         )
         return connection
     except mysql.connector.errors.ProgrammingError as err:
-        print("Error connecting to the database:", err)
-        print("Access denied. Please check your database username and password.")
-        sys.exit(1)
+        raise Exception("Error connecting to the database.<br>Access denied. Please check your database username and password.<br>" + str(err))
     except mysql.connector.Error as err:
-        print("Error connecting to the database:", err)
-        print("Please check your database connection settings.")
-        sys.exit(1)
+        raise Exception("Error connecting to the database.<br>Please check your database connection settings.<br>" + str(err))
 
 def execute_query(query, params=None):
     connection = connect_db()
@@ -28,9 +25,7 @@ def execute_query(query, params=None):
         result = cursor.fetchall()
         return result
     except mysql.connector.Error as err:
-        print("Error executing query:", err)
-        print("An error occurred while fetching data from the database.")
-        # sys.exit(1)
+        raise Exception("Error executing query.<br>An error occurred while fetching data from the database.<br>" + str(err))
     finally:
         if connection:
             connection.close()
@@ -41,10 +36,10 @@ def execute_update(query, params=None):
         cursor = connection.cursor(dictionary=True)
         cursor.execute(query, params)
         connection.commit()
+    except IntegrityError as err:
+        raise err
     except mysql.connector.Error as err:
-        print("Error updating data:", err)
-        print("An error occurred while updating data in the database.")
-        # sys.exit(1)
+        raise Exception("Error updating data.<br>An error occurred while updating data in the database.<br>" + str(err))
     finally:
         if connection:
             connection.close()

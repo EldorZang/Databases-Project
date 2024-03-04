@@ -4,18 +4,18 @@ import mysql.connector
 connection = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="root"
+    password="123456"
 )
 
 # Create a cursor object to interact with the database
 cursor = connection.cursor()
 
 # Create the FunGeo database
-cursor.execute("CREATE DATABASE IF NOT EXISTS FunGeo")
+cursor.execute("CREATE DATABASE IF NOT EXISTS FunGeo6")
 connection.commit()
 
 # Switch to the FunGeo database
-cursor.execute("USE FunGeo")
+cursor.execute("USE FunGeo6")
 
 # Create the 'user' table
 cursor.execute("""
@@ -26,6 +26,21 @@ cursor.execute("""
     )
 """)
 
+# Create a trigger which ensures each user name is unique
+cursor.execute("""
+    CREATE TRIGGER before_user_insert
+    BEFORE INSERT ON User
+    FOR EACH ROW
+    BEGIN
+        DECLARE user_count INT;
+        
+        SELECT COUNT(*) INTO user_count FROM User WHERE username = NEW.username;
+        
+        IF user_count > 0 THEN
+            SIGNAL SQLSTATE '23000' SET MESSAGE_TEXT = 'User already exists';
+        END IF;
+    END;
+""")
 # Create the 'subject' table
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS Subject (
