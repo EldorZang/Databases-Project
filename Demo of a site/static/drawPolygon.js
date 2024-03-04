@@ -1,5 +1,5 @@
 // List of polygon coordinates (example)
-const polygonCoordinates = [
+const geometries = [
     { x: 35.719918, y: 32.709192 },
     { x: 35.545665, y: 32.393992 },
     { x: 35.18393, y: 32.532511 },
@@ -25,26 +25,43 @@ const polygonCoordinates = [
     { x: 35.719918, y: 32.709192 }
 ];
 
-// Function to normalize and draw the polygon based on canvas size
-function drawNormalizedPolygon(canvas, coordinates) {
+// Function to draw a single polygon
+function drawPolygon(ctx, coordinates, offsetX, offsetY, scaleFactor) {
+    ctx.beginPath();
+    ctx.moveTo((coordinates[0].x - offsetX) * scaleFactor, (coordinates[0].y - offsetY) * scaleFactor);
+
+    for (let i = 1; i < coordinates.length; i++) {
+        ctx.lineTo((coordinates[i].x - offsetX) * scaleFactor, (coordinates[i].y - offsetY) * scaleFactor);
+    }
+
+    ctx.closePath();
+    ctx.stroke();
+}
+
+// Function to normalize and draw polygons or multipolygons based on canvas size
+function drawNormalizedGeometries(canvas, geometries) {
     const ctx = canvas.getContext('2d');
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Find the maximum and minimum x and y coordinates of the polygon
-    let maxX = coordinates[0].x;
-    let maxY = coordinates[0].y;
-    let minX = coordinates[0].x;
-    let minY = coordinates[0].y;
+    // Find the bounding box around all polygons
+    let minX = Number.MAX_VALUE;
+    let minY = Number.MAX_VALUE;
+    let maxX = Number.MIN_VALUE;
+    let maxY = Number.MIN_VALUE;
 
-    for (let i = 1; i < coordinates.length; i++) {
-        maxX = Math.max(maxX, coordinates[i].x);
-        maxY = Math.max(maxY, coordinates[i].y);
-        minX = Math.min(minX, coordinates[i].x);
-        minY = Math.min(minY, coordinates[i].y);
-    }
+    geometries.forEach(geometry => {
+        geometry.forEach(coordinates => {
+            coordinates.forEach(coord => {
+                minX = Math.min(minX, coord.x);
+                minY = Math.min(minY, coord.y);
+                maxX = Math.max(maxX, coord.x);
+                maxY = Math.max(maxY, coord.y);
+            });
+        });
+    });
 
-    // Calculate the width and height of the bounding box around the polygon
+    // Calculate the width and height of the bounding box
     const width = maxX - minX;
     const height = maxY - minY;
 
@@ -52,29 +69,32 @@ function drawNormalizedPolygon(canvas, coordinates) {
     const scaleX = canvas.width / width;
     const scaleY = canvas.height / height;
 
-    // Choose the smaller scaling factor to ensure the polygon fits within the canvas
+    // Choose the smaller scaling factor to ensure the geometries fit within the canvas
     const scaleFactor = Math.min(scaleX, scaleY);
 
-    // Calculate the offset to center the polygon in the canvas
-    const offsetX = (canvas.width - width * scaleFactor) / 2;
-    const offsetY = (canvas.height - height * scaleFactor) / 2;
+    // Calculate the offset to center the geometries in the canvas
+    const offsetX = minX;
+    const offsetY = minY;
 
-    ctx.beginPath();
-    ctx.moveTo((coordinates[0].x - minX) * scaleFactor + offsetX, (coordinates[0].y - minY) * scaleFactor + offsetY);
-
-    for (let i = 1; i < coordinates.length; i++) {
-        ctx.lineTo((coordinates[i].x - minX) * scaleFactor + offsetX, (coordinates[i].y - minY) * scaleFactor + offsetY);
-    }
-
-    ctx.closePath();
-    ctx.stroke();
+    geometries.forEach(geometry => {
+        if (geometry.length === 1) {
+            // Single polygon
+            drawPolygon(ctx, geometry[0], offsetX, offsetY, scaleFactor);
+        } else {
+            // Multi-polygon
+            geometry.forEach(polygon => {
+                drawPolygon(ctx, polygon, offsetX, offsetY, scaleFactor);
+            });
+        }
+    });
 }
+
 
 
 // Get the canvas element
 const canvas = document.getElementById('polygonCanvas');
 
-// Call drawNormalizedPolygon function with the canvas and list of coordinates
-drawNormalizedPolygon(canvas, polygonCoordinates);
+// Call drawNormalizedGeometries function with the canvas and list of geometries
+drawNormalizedGeometries(canvas, geometries);
 
 

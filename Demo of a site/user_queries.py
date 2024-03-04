@@ -1,25 +1,19 @@
 from mysql.connector import IntegrityError
 import dbconnection
-from dbconnection import DatabaseError
-
-def user_exists(username):
-    try:
-        params = {'username': username}
-        res = dbconnection.execute_query("SELECT COUNT(*) AS user_count FROM User WHERE username = %(username)s", params)
-        return res[0]['user_count'] > 0
-    except dbconnection.DatabaseQueryError as err:
-        raise DatabaseError("An error occurred while checking if user exists.") from err
+from dbconnection import DatabaseError,GeneralError
 
 def register(username, password):
     try:
-        if user_exists(username):
-            return False
         params = {'username': username, 'password_hash': password}
         dbconnection.execute_update("INSERT INTO User (username, password_hash) VALUES (%(username)s, %(password_hash)s)", params)
-        return True
+    except dbconnection.IntegrityDataError as err:
+        return False
     except dbconnection.DatabaseQueryError as err:
         raise DatabaseError("An error occurred while registering user.") from err
-
+    except GeneralError as err:
+        raise GeneralError(str(err))
+    return True
+    
 def authenticate_login(username, password):
     try:
         params = {'username': username, 'password_hash': password}

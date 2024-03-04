@@ -14,91 +14,14 @@ app.config['SESSION_COOKIE_SECURE'] = True
 # Define custom error pages
 @app.errorhandler(DatabaseConnectionError)
 @app.errorhandler(DatabaseQueryError)
+@app.errorhandler(Exception)
 def handle_database_error(error):
     return render_template('error.html', error=error), 500
 
-def get_flags(continent=None, population=None, order_by='country_name'):
-    query = """
-        SELECT Country.country_name, Country.flag_image_url
-        FROM Country
-    """
-    
-    conditions = []
-    params = {}
-
-    if continent:
-        conditions.append("Country.continent_name = %(continent)s")
-        params['continent'] = continent
-
-    if population:
-        population_value = int(population.replace('Up to ', '').replace(',', ''))
-        conditions.append("Country.population <= %(population)s")
-        params['population'] = population_value
-
-    if conditions:
-        query += " WHERE " + " AND ".join(conditions)
-
-    query += f" ORDER BY {order_by}"
-    return execute_query(query, params)
-
-def get_capital_cities(continent=None, order_by='city_name'):
-    query = """
-        SELECT Country.country_name, City.city_name
-        FROM Country
-        JOIN Capital ON Country.country_code = Capital.country_code
-        JOIN City ON Capital.city_id = City.city_id
-    """
-
-    if continent:
-        query += " WHERE Country.continent_name = %(continent)s"
-    
-    query += f" ORDER BY {order_by}"
-    return execute_query(query, {'continent': continent})
-
-def get_currencies(order_by='currency'):
-    query = """
-        SELECT Country.country_name, Country.currency
-        FROM Country
-    """
-
-    query += f" ORDER BY {order_by}"
-    return execute_query(query)
-
-def get_currencies_by_continent(continent, order_by='currency'):
-    query = """
-        SELECT Country.country_name, Country.currency
-        FROM Country
-        WHERE Country.continent_name = %(continent)s
-    """
-
-    query += f" ORDER BY {order_by}"
-    return execute_query(query, {'continent': continent})
-
-def get_currencies_by_population(population, order_by='currency'):
-    query = """
-        SELECT Country.country_name, Country.currency
-        FROM Country
-        WHERE Country.population <= %s
-    """
-
-    population_value = int(population.replace('Up to ', '').replace(',', ''))
-
-    query += f" ORDER BY {order_by}"
-    return execute_query(query, (population_value,))
-'''
-@app.route('/')
-def index():
-    return redirect(url_for('login')) 
-'''
-@app.errorhandler(Exception)
-def handle_error(error):
-    # Custom error handling logic
-    error_message = str(error)
-    return render_template('error.html', error_message=error_message), 500  # Render custom error page with error message and status code
 
 @app.route('/')
 def index():
-    return render_template('polygon.html') 
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
