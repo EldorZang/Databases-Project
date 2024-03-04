@@ -1,9 +1,46 @@
 import mysql.connector
-import sys
-from mysql.connector import IntegrityError
+
+class DatabaseConnectionError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"Database Connection Error: {self.message}"
+
+class DatabaseQueryError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"Database Query Error: {self.message}"
+
+class UserExistsError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"User Exists Error: {self.message}"
+
+class AuthenticationError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"Authentication Error: {self.message}"
+
+class DatabaseError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return f"Database Error: {self.message}"
 
 def connect_db():
-    connection = None
     try:
         connection = mysql.connector.connect(
             host="localhost",
@@ -13,33 +50,42 @@ def connect_db():
         )
         return connection
     except mysql.connector.errors.ProgrammingError as err:
-        raise Exception("Error connecting to the database.<br>Access denied. Please check your database username and password.<br>" + str(err))
+        raise DatabaseConnectionError("Please check your database connection settings.") from err
     except mysql.connector.Error as err:
-        raise Exception("Error connecting to the database.<br>Please check your database connection settings.<br>" + str(err))
+        raise DatabaseConnectionError("Please check your database connection settings.") from err
 
 def execute_query(query, params=None):
-    connection = connect_db()
     try:
+        connection = connect_db()
         cursor = connection.cursor(dictionary=True)
+        
+        # Print the query with parameters
+        if params:
+            formatted_query = query.format(**params)
+        else:
+            formatted_query = query
+        print("Executing query:", formatted_query)
+        
         cursor.execute(query, params)
         result = cursor.fetchall()
         return result
     except mysql.connector.Error as err:
-        raise Exception("Error executing query.<br>An error occurred while fetching data from the database.<br>" + str(err))
+        raise DatabaseQueryError("An error occurred while fetching data from the database.") from err
     finally:
-        if connection:
+        if 'connection' in locals():
             connection.close()
 
+
 def execute_update(query, params=None):
-    connection = connect_db()
     try:
+        connection = connect_db()
         cursor = connection.cursor(dictionary=True)
         cursor.execute(query, params)
         connection.commit()
     except IntegrityError as err:
         raise err
     except mysql.connector.Error as err:
-        raise Exception("Error updating data.<br>An error occurred while updating data in the database.<br>" + str(err))
+        raise DatabaseQueryError("An error occurred while updating data in the database.") from err
     finally:
-        if connection:
+        if 'connection' in locals():
             connection.close()
