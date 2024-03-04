@@ -326,3 +326,63 @@ a:hover {
     margin-bottom: 5px;
     color: #666;
 }
+
+.podium {
+    display: inline-block;
+    margin-right: 100px;
+    position: relative;
+}
+
+.podium-bar {
+    width: 100px;
+    background-color: #8b572a;
+    border-radius: 5px;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.podium .place {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+}
+
+.podium .user {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+}
+
+.podium .score {
+    position: absolute;
+    top: -90px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #555;
+}
+
+.second-place .podium-bar {
+    height: 200px;
+    background-color: silver;
+}
+
+.first-place .podium-bar {
+    height: 250px;
+    background-color: gold;
+}
+
+.third-place .podium-bar {
+    height: 150px;
+    background-color: #cd7f32; /* bronze */
+}
+
+#podiumContainer {
+    padding-top: 300px; /* Adjust the value as needed */
+}

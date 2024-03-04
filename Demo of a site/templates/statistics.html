@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Statistics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .podium-container {
+            display: none; /* Hide the podium container initially */
+        }
+    </style>
+</head>
+
+<body> 
+    <div class="container">
+        <h1>Website Statistics</h1>
+        <button class="collapsible">Activity Statistics</button>
+        <div class="content activity-stats">
+            <h3>Activity Information</h3>
+            <ul>
+                <li>Number of registered users: {{ num_registered_users }}</li>
+                <li>Amount of study subjects on the site: {{ total_subjects }}</li>
+                <li>Amount of subjects that no one has studied: {{ unexplored_subjects }}</li>
+                <li>Amount of repeat users: {{ repeat_users }}</li>
+            </ul>
+        </div>
+
+        <button class="collapsible">Podium</button>
+        <div class="content activity-stats">
+            <form id="topScoresForm">
+                <label for="subject">Choose a study subject:</label>
+                <select id="subject" name="subject">
+                    {% for subject in subjects %}
+                    <option value="{{ subject }}">{{ subject }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Show Podium</button>
+            </form>
+            
+            <div id="podiumContainer" class="podium-container">
+                <div class="podium second-place">
+                    <div class="podium-bar"></div>
+                    <div class="place">🥈</div>
+                    <div class="user" id="secondPlace"></div>
+                    <div class="score" id="secondPlaceScore"></div>
+                </div>
+                <div class="podium first-place">
+                    <div class="podium-bar"></div>
+                    <div class="place">🥇</div>
+                    <div class="user" id="firstPlace"></div>
+                    <div class="score" id="firstPlaceScore"></div>
+                </div>
+                <div class="podium third-place">
+                    <div class="podium-bar"></div>
+                    <div class="place">🥉</div>
+                    <div class="user" id="thirdPlace"></div>
+                    <div class="score" id="thirdPlaceScore"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Back to main menu button -->
+        <a href="/main_menu" class="menu-option">Back to Main Menu</a>
+    </div>
+
+    <script>
+        // Function to handle collapsible sections
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+    
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight * 10 + "px";
+                }
+            });
+        }
+
+        document.getElementById('topScoresForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+            var selectedSubject = document.getElementById('subject').value;
+            fetch('/top_scores', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ subject: selectedSubject })
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateTopScores(data); // Call function to update top scores
+                document.getElementById('podiumContainer').style.display = "block"; // Show the podium container
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        function updateTopScores(topScores) {
+            // Directly access the first member (if it exists)
+            if (topScores.length > 0) {
+                const firstMember = topScores[0];
+                document.getElementById('firstPlace').textContent = firstMember.username;
+                document.getElementById('firstPlaceScore').textContent = `Score: ${firstMember.grade}`;
+            }
+            else{
+                document.getElementById('firstPlace').textContent = "";
+                document.getElementById('firstPlace').textContent = "";
+            }
+            // Directly access the second member (if it exists)
+            if (topScores.length > 1) {
+                const secondMember = topScores[1];
+                document.getElementById('secondPlace').textContent = secondMember.username;
+                document.getElementById('secondPlaceScore').textContent = `Score: ${secondMember.grade}`;
+            }
+            else{
+                document.getElementById('secondPlace').textContent = "";
+                document.getElementById('secondPlaceScore').textContent = "";
+            }
+            // Directly access the third member (if it exists)
+            if (topScores.length > 2) {
+                const thirdMember = topScores[2];
+                document.getElementById('thirdPlace').textContent = thirdMember.username;
+                document.getElementById('thirdPlaceScore').textContent = `Score: ${thirdMember.grade}`;
+            }
+            else{
+                document.getElementById('thirdPlace').textContent = "";
+                document.getElementById('thirdPlaceScore').textContent = "";
+            }
+        }
+
+    </script>
+
+</body>
+</html>

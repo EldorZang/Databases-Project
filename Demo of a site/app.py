@@ -3,6 +3,8 @@ from flask import Flask, jsonify, redirect, render_template, request, session, u
 from learn_queries import get_countries_data , get_complex_data
 import user_queries
 from dbconnection import DatabaseConnectionError, DatabaseQueryError
+from user_queries import count_users
+from site_queries import total_subjects , unexplored_subjects , repeat_users , all_subjects ,top_scores_for_subject
 
 app = Flask(__name__)
 app.secret_key = 'secret_key123'
@@ -247,6 +249,32 @@ def learn():
         return redirect(url_for('learn_results', options=json.dumps(selected_options)))
 
     return render_template('learn.html')
+
+@app.route('/statistics')
+def statistics():
+    # Example: Retrieve statistics data from database
+    num_registered_users = count_users()
+    num_total_subjects = total_subjects()
+    num_unexplored_subjects = unexplored_subjects()
+    num_repeat_users = repeat_users()
+    subjects = all_subjects()
+
+    return render_template('statistics.html', num_registered_users=num_registered_users,
+                           total_subjects=num_total_subjects, unexplored_subjects=num_unexplored_subjects,
+                           repeat_users=num_repeat_users, subjects=subjects)
+
+
+from flask import request, jsonify
+
+@app.route('/top_scores', methods=['POST'])
+def top_scores():
+    data = request.get_json()
+    subject = data.get('subject')
+    # Assuming you have a function to retrieve top scores based on the selected subject
+    top_scores_data = top_scores_for_subject(subject)
+    return jsonify(top_scores_data)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
