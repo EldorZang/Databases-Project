@@ -28,8 +28,9 @@
                 </div>
                 <input type="checkbox" id="advancedStudy" name="advanced_study"> Advanced Study
                 <div id="complexityOptions" style="display: none;">
-                    <label for="complexity">Choose Complexity:</label>
+                    <label for="complexity"></label>
                     <select name="complexity" id="complexity">
+                        <option disabled selected>Choose Complexity:</option>
                         <option value="continent">Continent</option>
                         <option value="population">Population Size</option>
                     </select>
@@ -38,6 +39,7 @@
                         <!-- Filter options will be dynamically populated based on the user's choice -->
                     </div>
                 </div>
+                <br>
                 <input type="submit" value="Search">
             </div>
             <a href="/main_menu" class="menu-option">Back to Main Menu</a>

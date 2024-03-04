@@ -18,7 +18,7 @@ def get_countries_data(country_name,columns):
             columns_str = ''.join(f'{x},' for x in columns)[:-1]
         else:
             columns_str = ''   
-        query = "  SELECT " + columns_str + " FROM Country WHERE country_name like '%" + country_name + "%'"
+        query = "  SELECT " + columns_str + " FROM Country WHERE country_name like '%" + country_name + "%'" + "ORDER BY country_name"
      
     res = dbconnection.execute_query(query)
     return res

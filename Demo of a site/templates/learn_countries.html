@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+    <div class="container2">
+        <h1>Learn</h1>
+        <form id="searchForm" action="/learn" method="post" onsubmit="return validateForm()">
+            <div class="search-container">
+                <input type="text" id="searchInput" name="searchInput" placeholder="Search country by name">
+                <!-- Checkboxes for options -->
+                <div class="options">
+                    <label><input type="checkbox" name="option" value="country_name"> Name</label>
+                    <label><input type="checkbox" name="option" value="country_code"> Country Code</label>
+                    <label><input type="checkbox" name="option" value="flag_image_url"> Flag</label>
+                    <label><input type="checkbox" name="option" value="capital"> Capital</label>
+                    <label><input type="checkbox" name="option" value="region"> Region</label>
+                    <label><input type="checkbox" name="option" value="population"> Population</label>
+                    <label><input type="checkbox" name="option" value="currency"> Currency</label>
+                    <label><input type="checkbox" name="option" value="continent_name"> Continent</label>
+                </div>
+                <input type="checkbox" id="advancedStudy" name="advanced_study"> Advanced Study
+                <div id="complexityOptions" style="display: none;">
+                    <label for="complexity"></label>
+                    <select name="complexity" id="complexity">
+                        <option disabled selected>Choose Complexity:</option>
+                        <option value="continent">Continent</option>
+                        <option value="population">Population Size</option>
+                    </select>
+                    <br><br>
+                    <div id="filterOptions" style="display: none;">
+                        <!-- Filter options will be dynamically populated based on the user's choice -->
+                    </div>
+                </div>
+                <br>
+                <input type="submit" value="Search">
+            </div>
+            <a href="/main_menu" class="menu-option">Back to Main Menu</a>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var advancedStudyCheckbox = document.getElementById('advancedStudy');
+            var complexityOptions = document.getElementById('complexityOptions');
+            var filterOptions = document.getElementById('filterOptions');
+
+            advancedStudyCheckbox.addEventListener('change', function () {
+                complexityOptions.style.display = this.checked ? 'block' : 'none';
+                filterOptions.style.display = 'none';
+            });
+
+            document.getElementById('complexity').addEventListener('change', function () {
+                var complexityValue = this.value;
+
+                // Clear existing options
+                filterOptions.innerHTML = '';
+
+                // Add filter options based on the chosen complexity
+                if (complexityValue === 'continent') {
+                    var continentOptions = ['Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'];
+                    addOptions(filterOptions, 'Select Continent:', continentOptions);
+                } else if (complexityValue === 'population') {
+                    var populationOptions = ['Up to 100,000', 'Up to 1,000,000', 'Up to 10,000,000'];
+                    addOptions(filterOptions, 'Select Population Size:', populationOptions);
+                }
+
+                // Display the filter options
+                filterOptions.style.display = 'block';
+            });
+
+            function addOptions(selectElement, title, options) {
+                var titleLabel = document.createElement('label');
+                titleLabel.textContent = title;
+                selectElement.appendChild(titleLabel);
+
+                var selectBox = document.createElement('select');
+                selectBox.name = 'filterOption';
+                selectBox.id = 'filterOption';
+
+                for (var i = 0; i < options.length; i++) {
+                    var option = document.createElement('option');
+                    option.value = options[i];
+                    option.text = options[i];
+                    selectBox.appendChild(option);
+                }
+
+                selectElement.appendChild(selectBox);
+            }
+        });
+
+        function validateForm() {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"][name="option"]');
+            var checked = false;
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    checked = true;
+                    break;
+                }
+            }
+            if (!checked) {
+                alert("Please select at least one option.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+</body>
+
+</html>

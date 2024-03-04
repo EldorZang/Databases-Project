@@ -30,16 +30,14 @@ def login():
         username = request.form['username']
         password = request.form['password']
         
-        try:
-            if user_queries.authenticate_login(username, password):
-                # Successful login, redirect to main menu
-                session['username'] = username
-                return redirect(url_for('main_menu'))
-            else:
-                # Incorrect username or password, set error message
-                error = 'Incorrect username or password. Please try again.'
-        except (DatabaseConnectionError, DatabaseQueryError) as e:
-            return render_template('error.html', error=e), 500
+        if user_queries.authenticate_login(username, password):
+            # Successful login, redirect to main menu
+            session['username'] = username
+            return redirect(url_for('main_menu'))
+        else:
+            # Incorrect username or password, set error message
+            error = 'Incorrect username or password. Please try again.'
+
     
     # Render the login page with error message (if any)
     return render_template('login.html', error=error)
@@ -105,12 +103,10 @@ def personal_area():
                                    average_score=average_score, exclusive_subjects=exclusive_subjects,
                                    highest_grade_subjects=highest_grade_subjects)
         if request.method == 'POST':
-            try:
-                newPassword = request.form['newPassword']
-                user_queries.update_password(current_username, newPassword)
-                return redirect(url_for('main_menu'))
-            except (DatabaseConnectionError, DatabaseQueryError) as e:
-                return render_template('error.html', error=e), 500
+            newPassword = request.form['newPassword']
+            user_queries.update_password(current_username, newPassword)
+            return redirect(url_for('main_menu'))
+
 
     else:
         return redirect(url_for('login'))  # Redirect to login page if user not logged in
@@ -126,11 +122,9 @@ def logout():
 def delete_user():
     if 'username' in session:
         current_username = session['username']
-        try:
-            user_queries.delete_user(current_username)
-            session.pop('username', None)
-        except (DatabaseConnectionError, DatabaseQueryError) as e:
-            return render_template('error.html', error=e), 500
+        user_queries.delete_user(current_username)
+        session.pop('username', None)
+
     return redirect(url_for('login'))  # Redirect to login page after logout
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -139,16 +133,13 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        try:
-            if user_queries.register(username, password):
-                return redirect(url_for('login'))  # Redirect to login page after registration
-            else:
-                # User already exists, set error message
-                error = 'User already exists. Please choose a different username.'
-                # Render the register page with error message (if any)
-                return render_template('register.html', users_count=users_count, error=error)
-        except (DatabaseConnectionError, DatabaseQueryError) as e:
-            return render_template('error.html', error=e), 500
+        if user_queries.register(username, password):
+            return redirect(url_for('login'))  # Redirect to login page after registration
+        else:
+            # User already exists, set error message
+            error = 'User already exists. Please choose a different username.'
+            # Render the register page with error message (if any)
+            return render_template('register.html', users_count=users_count, error=error)
     return render_template('register.html', users_count=users_count)
 
 
@@ -167,21 +158,19 @@ def learn():
         data = None
         selected_options = [{'name': col.capitalize()} for col in columns]
         
-        try:
-            if 'advanced_study' in request.form:
-                complexity = request.form['complexity']
-                filter_option = request.form['filterOption']
-                data = get_complex_data(country_input, columns, complexity, filter_option)
-                # selected_options.append({'name': complexity.capitalize(), 'value': filter_option})
-            else:
-                data = get_countries_data(country_input, columns)
-        except (DatabaseConnectionError, DatabaseQueryError) as e:
-            return render_template('error.html', error=e), 500
+        if 'advanced_study' in request.form:
+            complexity = request.form['complexity']
+            filter_option = request.form['filterOption']
+            data = get_complex_data(country_input, columns, complexity, filter_option)
+            # selected_options.append({'name': complexity.capitalize(), 'value': filter_option})
+        else:
+            data = get_countries_data(country_input, columns)
+
 
         app.data = data
         return redirect(url_for('learn_results', options=json.dumps(selected_options)))
 
-    return render_template('learn.html')
+    return render_template('learn_countries.html')
 
 @app.route('/statistics')
 def statistics():
@@ -197,7 +186,6 @@ def statistics():
                            repeat_users=num_repeat_users, subjects=subjects)
 
 
-from flask import request, jsonify
 
 @app.route('/top_scores', methods=['POST'])
 def top_scores():
