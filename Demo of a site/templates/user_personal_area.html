@@ -24,7 +24,22 @@
                 <li>Subjects where the user received the highest grade: <span id="highestGradeSubjects">{{ highest_grade_subjects }}</span></li> <!-- Display subjects where the user received the highest grade -->
             </ul>
         </div>
-
+            <!-- Collapsible for test scores -->
+            <button class="collapsible">Test Scores</button>
+            <div class="content">
+                <table>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Grade</th>
+                    </tr>
+                    {% for subject, grade in test_scores.items() %}
+                    <tr>
+                        <td>{{ subject }}</td>
+                        <td>{{ grade }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
         <!-- Update Password -->
         <button class="collapsible">Update Password</button>
         <div class="content">

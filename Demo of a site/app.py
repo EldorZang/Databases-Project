@@ -3,7 +3,6 @@ from flask import Flask, jsonify, redirect, render_template, request, session, u
 from learn_queries import get_countries_data , get_complex_data,get_countries_lst,get_cities
 import user_queries,test_queries
 from dbconnection import DatabaseConnectionError, DatabaseQueryError
-from user_queries import count_users
 from site_queries import total_subjects , unexplored_subjects , repeat_users , all_subjects ,top_scores_for_subject
 
 app = Flask(__name__)
@@ -108,45 +107,6 @@ def main_menu():
     if not user_logged(): return redirect(url_for('login'))
     return render_template('main_menu.html')
 
-@app.route('/select_topic', methods=['POST'])
-def select_topic():
-    selected_topic = request.form['topic']
-    data = None
-
-    try:
-        if selected_topic == 'flags':
-            continent = request.form.get('filterOption') if request.form.get('complexity') == 'continent' else None
-            population = request.form.get('filterOption') if request.form.get('complexity') == 'population' else None
-            order_by = request.form.get('order_by', 'country_name')
-
-            data = get_flags(continent=continent, population=population, order_by=order_by)
-
-        elif selected_topic == 'capital_cities':
-            continent = request.form.get('filterOption') if request.form.get('complexity') == 'continent' else None
-            order_by = request.form.get('order_by', 'city_name')
-
-            data = get_capital_cities(continent=continent, order_by=order_by)
-
-        elif selected_topic == 'currencies':
-            # Handle the case when the user chooses the category of "continent"
-            if request.form.get('advanced_study') == 'on' and request.form.get('complexity') == 'continent':
-                continent = request.form.get('filterOption')
-                data = get_currencies_by_continent(continent)
-            elif request.form.get('advanced_study') == 'on' and request.form.get('complexity') == 'population':
-                population = request.form.get('filterOption')
-                data = get_currencies_by_population(population)
-            else:
-                # Handle other cases (if needed)
-                order_by = request.form.get('order_by', 'currency')
-                data = get_currencies(order_by=order_by)
-    except (DatabaseConnectionError, DatabaseQueryError) as e:
-        return render_template('error.html', error=e), 500
-
-    if data is not None:
-        return render_template('result.html', topic=selected_topic, data=data)
-    else:
-        return render_template('error.html', error="Error retrieving data"), 500
-
 @app.route('/user_personal_area', methods=['GET', 'POST'])
 def personal_area():
     if not user_logged(): return redirect(url_for('login'))
@@ -160,11 +120,13 @@ def personal_area():
             average_score = 0
         exclusive_subjects = user_queries.subjects_unstudied_by_others(current_username)
         highest_grade_subjects = user_queries.subjects_with_higher_grades(current_username)
-        
+        test_scores = user_queries.test_scores(current_username)
+
         return render_template('user_personal_area.html', current_username=current_username,
                                 subjects_studied=subjects_studied,
                                 average_score=average_score, exclusive_subjects=exclusive_subjects,
-                                highest_grade_subjects=highest_grade_subjects)
+                                highest_grade_subjects=highest_grade_subjects,
+                                test_scores=test_scores) 
     if request.method == 'POST':
         newPassword = request.form['newPassword']
         user_queries.update_password(current_username, newPassword)
@@ -257,14 +219,11 @@ def learn_cities():
 
     return render_template('learn_cities.html',countries=countries_lst)
 
-
-
-
 @app.route('/statistics')
 def statistics():
     if not user_logged(): return redirect(url_for('login'))
     # Example: Retrieve statistics data from database
-    num_registered_users = count_users()
+    num_registered_users = user_queries.count_users()
     num_total_subjects = total_subjects()
     num_unexplored_subjects = unexplored_subjects()
     num_repeat_users = repeat_users()
@@ -275,7 +234,6 @@ def statistics():
                            repeat_users=num_repeat_users, subjects=subjects)
 
 
-
 @app.route('/top_scores', methods=['POST'])
 def top_scores():
     if not user_logged(): return redirect(url_for('login'))
@@ -284,7 +242,6 @@ def top_scores():
     # Assuming you have a function to retrieve top scores based on the selected subject
     top_scores_data = top_scores_for_subject(subject)
     return jsonify(top_scores_data)
-
 
 
 if __name__ == '__main__':

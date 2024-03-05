@@ -135,9 +135,9 @@ def get_currency_question():
 
 def get_test(test_length,subject):
       test_funcs = {
-            'Flags': get_flag_question,
-            'Capitals_Cities': get_captial_cities_question,
-            'Currencies': get_currency_question
+            'Flags of countries': get_flag_question,
+            'Capital cities of countries': get_captial_cities_question,
+            'Currencies of countries': get_currency_question
       }
       return get_test_data(test_length,test_funcs[subject])
 

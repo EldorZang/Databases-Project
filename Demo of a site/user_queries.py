@@ -115,3 +115,18 @@ def subjects_with_higher_grades(username):
         return res[0]['subject_count']
     except dbconnection.DatabaseQueryError as err:
         raise DatabaseError("An error occurred while retrieving the number of subjects studied by the user that no other user received a higher grade than.") from err
+
+def test_scores(username):
+    try:
+        params = {'username': username}
+        res = dbconnection.execute_query("""
+            SELECT s.subject_name, e.grade
+            FROM Exam e 
+            JOIN User u ON e.user_id = u.user_id 
+            JOIN Subject s ON e.subject_id = s.subject_id
+            WHERE u.username = %(username)s
+        """, params)
+        test_scores = {row['subject_name']: row['grade'] for row in res}
+        return test_scores
+    except dbconnection.DatabaseQueryError as err:
+        raise DatabaseError("An error occurred while retrieving test scores.") from err
