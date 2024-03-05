@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <div class="parent-container">
+        <div class="container3">
+            <h1>Search Results</h1>
+            <h2>{{ country_name }}</h2>
+            <div class="scroll-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>City Name</th>
+                            <th>Population</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for city in cities %}
+                        <tr>
+                            <td>{{ city['city_name'] }}</td>
+                            {% if city['population'] < 20 %}
+                            <td>Smaller than 20</td>
+                            {% else %}
+                            <td>{{ city['population'] }}</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <a href="javascript:history.back()" class="menu-option">Go Back</a>
+        </div>
+    </div>
+</body>
+
+</html>

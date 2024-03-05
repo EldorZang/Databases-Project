@@ -1,5 +1,28 @@
 import dbconnection
 
+def get_cities(country_name,num_results,order):
+    #params = {'country_name': country_name,'num_results':num_results,'order':order}
+    query = f"""
+            SELECT city_name,City.population
+            FROM City
+            JOIN
+            Country
+            ON City.country_code  = Country.country_code
+            WHERE Country.country_name = '{country_name}' 
+            ORDER BY City.population {order} 
+            LIMIT {num_results}
+            """
+    res = dbconnection.execute_query(query)
+    return res   
+
+def get_countries_lst():
+    data =  dbconnection.execute_query("""
+                                      SELECT country_name
+                                      FROM Country
+                                      ORDER BY country_name
+                                      """)
+    return [x['country_name'] for x in data]
+
 def get_countries_data(country_name,columns):
     #query = "SELECT " + columns_str + " FROM Country WHERE country_name like '%" + country_name + "%'"
     if 'capital' in columns:

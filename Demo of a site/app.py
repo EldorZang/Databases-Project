@@ -1,6 +1,6 @@
 import json
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
-from learn_queries import get_countries_data , get_complex_data
+from learn_queries import get_countries_data , get_complex_data,get_countries_lst,get_cities
 import user_queries,test_queries
 from dbconnection import DatabaseConnectionError, DatabaseQueryError
 from user_queries import count_users
@@ -211,9 +211,15 @@ def learn_results():
     columns = json.loads(request.args.get('options'))
     return render_template('learn_results.html', countries=data,options=columns)
 
+@app.route('/learn_results_cities')
+def learn_results_cities():
+    if not user_logged(): return redirect(url_for('login'))
+    cities = app.data
+    country_name = request.args.get('country_name')
+    return render_template('learn_results_cities.html', cities=cities,country_name=country_name)
 
-@app.route('/learn', methods=['GET', 'POST'])
-def learn():
+@app.route('/learn_countries', methods=['GET', 'POST'])
+def learn_countries():
     if not user_logged(): return redirect(url_for('login'))
     if request.method == 'POST':
         country_input = request.form['searchInput']
@@ -234,6 +240,25 @@ def learn():
         return redirect(url_for('learn_results', options=json.dumps(selected_options)))
 
     return render_template('learn_countries.html')
+
+
+@app.route('/learn_cities', methods=['GET', 'POST'])
+def learn_cities():
+    if not user_logged(): return redirect(url_for('login'))
+    if request.method == 'POST':
+        country_input = request.form['country']
+        num_results = request.form['num_results']
+        order = request.form['order']
+        
+        data = get_cities(country_input,num_results,order)
+        app.data = data
+        return redirect(url_for('learn_results_cities', country_name=country_input))
+    countries_lst = get_countries_lst()
+
+    return render_template('learn_cities.html',countries=countries_lst)
+
+
+
 
 @app.route('/statistics')
 def statistics():

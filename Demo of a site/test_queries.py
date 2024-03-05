@@ -5,11 +5,11 @@ from random import randrange
 
 def get_subject_id(subject):
         params = {'subject': subject}
-        return (dbconnection.execute_query("SELECT subject_id from subject where subject_name = %(subject)s", params)[0]['subject_id'])
+        return (dbconnection.execute_query("SELECT subject_id from Subject where subject_name = %(subject)s", params)[0]['subject_id'])
 
 def get_user_id(username):
         params = {'username': username}
-        return (dbconnection.execute_query("SELECT user_id from user where username = %(username)s",params)[0]['user_id'])
+        return (dbconnection.execute_query("SELECT user_id from User where username = %(username)s",params)[0]['user_id'])
 
 def update_user_test_score(username,subject,score):
         user_id = get_user_id(username)
