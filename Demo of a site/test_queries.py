@@ -54,8 +54,11 @@ def get_flag_question():
 def get_test_data(test_length,get_question_func):
     test = {}
     test_correct = {}
+    question,correct_answer,wrong_answers = '','',[]
     for i in range(test_length):
-        question,correct_answer,wrong_answers = get_question_func()
+        # Ensuring that we are given a valid question (due to randomness we can get empty questions)
+        while question == '' or correct_answer == '' or len(wrong_answers) != 3:
+            question,correct_answer,wrong_answers = get_question_func()
         answers = wrong_answers
         random_insert(answers,correct_answer)
         test[question] = answers
@@ -130,16 +133,52 @@ def get_currency_question():
     wrong_answers = [x['country_name'] for x in wrong_answers_data]
     return (question,correct_answer,wrong_answers)
 
+def get_biggest_cities_question():
+    # Step 1: Select a random city (out of top 3) and its country CODE
+    correct_answer_data = (dbconnection.execute_query("""
+                                                SELECT country_code,city_name
+                                                FROM (SELECT *,dense_rank() OVER ( partition by country_code order by City.population DESC ) AS rnk
+                                                FROM FunGeo.City) AS data_t
+                                                WHERE rnk <= 3
+                                                ORDER BY Rand()
+                                                LIMIT 1"""))[0]
+    
+    # Step 2: Select three random cities from the same country as before, excluding the top 3 (by populations) cities
+    params = {'country_code': correct_answer_data['country_code']}
 
+    wrong_answers_data = dbconnection.execute_query("""
+                                                SELECT city_name,data_t.country_code,Country.country_name
+                                                FROM (SELECT country_code,city_name,population,
+                                                        dense_rank() OVER ( partition by country_code order by City.population DESC ) AS rnk
+													FROM FunGeo.City) AS data_t
+												JOIN
+                                                FunGeo.Country
+                                                ON data_t.country_code=Country.country_code
+                                                WHERE rnk > 3 AND
+                                                data_t.country_code =  %(country_code)s    
+                                                ORDER BY Rand()
+                                                LIMIT 3
+                                                """,params)
+    if len(wrong_answers_data) > 0:
+        question = wrong_answers_data[0]['country_name']
+    else:
+         question = ''
+    correct_answer = correct_answer_data['city_name']
+    wrong_answers = [x['city_name'] for x in wrong_answers_data]
+    return (question,correct_answer,wrong_answers)
 
 
 def get_test(test_length,subject):
       test_funcs = {
             'Flags of countries': get_flag_question,
             'Capital cities of countries': get_captial_cities_question,
-            'Currencies of countries': get_currency_question
+            'Currencies of countries': get_currency_question,
+            'Biggest city in country (out of options)':get_biggest_cities_question
       }
       return get_test_data(test_length,test_funcs[subject])
+
+x = get_test(10,'Biggest city in country (out of options)')
+print(x)
 
 
 

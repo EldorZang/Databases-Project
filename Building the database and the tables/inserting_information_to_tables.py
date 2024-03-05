@@ -119,7 +119,7 @@ def insert_continent_data():
         insert_data("Continent", ["continent_name"], (value,))
 
 def insert_subjects():
-    subjects_values = ["Flags of countries","Capital cities of countries","Currencies of countries"]
+    subjects_values = ["Flags of countries","Capital cities of countries","Currencies of countries","Biggest city in country (out of options)"]
     for value in subjects_values:
         insert_data("Subject", ["subject_name"], (value,))
 
