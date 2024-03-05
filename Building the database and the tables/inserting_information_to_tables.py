@@ -121,13 +121,13 @@ def insert_continent_data():
 def insert_subjects():
     subjects_values = ["Flags","Capitals_Cities","Currencies"]
     for value in subjects_values:
-        insert_data("subject", ["subject_name"], (value,))
+        insert_data("Subject", ["subject_name"], (value,))
 
 # Uncomment the function calls based on your needs
-insert_continent_data()
-insert_country_data()
-insert_city_data()
-insert_capital_data()
+#insert_continent_data()
+#insert_country_data()
+#insert_city_data()
+#insert_capital_data()
 insert_subjects()
 # Close the connection
 connection.close()
