@@ -9,7 +9,7 @@ connection = mysql.connector.connect(
     host="localhost",
     user="root",
     password="123456",
-    database="fungeo"
+    database="FunGeo"
 )
 
 # Create a cursor object to interact with the database
@@ -124,10 +124,10 @@ def insert_subjects():
         insert_data("subject", ["subject_name"], (value,))
 
 # Uncomment the function calls based on your needs
-#insert_continent_data()
-#insert_country_data()
-#insert_city_data()
-#insert_capital_data()
+insert_continent_data()
+insert_country_data()
+insert_city_data()
+insert_capital_data()
 insert_subjects()
 
 
