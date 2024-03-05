@@ -1,9 +1,10 @@
 import json
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
-from learn_queries import get_countries_data , get_complex_data,get_countries_lst,get_cities
-import user_queries,test_queries
-from dbconnection import DatabaseConnectionError, DatabaseQueryError
-from site_queries import total_subjects , unexplored_subjects , repeat_users , all_subjects ,top_scores_for_subject
+from backend.learn_queries import *
+from backend.test_queries import *
+from backend.user_queries import *
+from backend.dbconnection import *
+from backend.site_queries import *
 
 app = Flask(__name__)
 app.secret_key = 'secret_key123'
@@ -36,7 +37,7 @@ def test():
         subject = request.args.get('subject')
         
         if not subject: return redirect(url_for('test_menu'))
-        test,test_correct = test_queries.get_test(tests_length,subject)
+        test,test_correct = get_test(tests_length,subject)
         app.test = test
         app.test_correct = test_correct
         app.subject = subject
@@ -62,7 +63,7 @@ def submit_test():
     app.test_score = int(round((correct_count/len(questions))*100,0))
     app.user_answers = user_answers
 
-    test_queries.update_user_test_score(session['username'],app.subject,app.test_score)
+    update_user_test_score(session['username'],app.subject,app.test_score)
     # Render the result page with the user's answers and correct count
     return redirect(url_for('test_result'))
     
@@ -90,7 +91,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         
-        if user_queries.authenticate_login(username, password):
+        if authenticate_login(username, password):
             # Successful login, redirect to main menu
             session['username'] = username
             return redirect(url_for('main_menu'))
@@ -114,13 +115,13 @@ def personal_area():
     current_username = session['username']  # Retrieve current username from session
     if request.method == 'GET':
         # Retrieve additional statistics
-        subjects_studied = user_queries.amount_of_subjects_studied(current_username)
-        average_score = user_queries.average_score(current_username)
+        subjects_studied = amount_of_subjects_studied(current_username)
+        average_score = get_average_score(current_username)
         if average_score is None:
             average_score = 0
-        exclusive_subjects = user_queries.subjects_unstudied_by_others(current_username)
-        highest_grade_subjects = user_queries.subjects_with_higher_grades(current_username)
-        test_scores = user_queries.test_scores(current_username)
+        exclusive_subjects =  subjects_unstudied_by_others(current_username)
+        highest_grade_subjects = subjects_with_higher_grades(current_username)
+        test_scores = get_test_scores(current_username)
 
         return render_template('user_personal_area.html', current_username=current_username,
                                 subjects_studied=subjects_studied,
@@ -129,7 +130,7 @@ def personal_area():
                                 test_scores=test_scores) 
     if request.method == 'POST':
         newPassword = request.form['newPassword']
-        user_queries.update_password(current_username, newPassword)
+        update_password(current_username, newPassword)
         return redirect(url_for('main_menu'))
 
 
@@ -145,18 +146,18 @@ def logout():
 def delete_user():
     if not user_logged(): return redirect(url_for('login'))
     current_username = session['username']
-    user_queries.delete_user(current_username)
+    delete_user(current_username)
     session.pop('username', None)
 
     return redirect(url_for('login'))  # Redirect to login page after logout
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    users_count = user_queries.count_users()
+    users_count = count_users()
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if user_queries.register(username, password):
+        if register(username, password):
             return redirect(url_for('login'))  # Redirect to login page after registration
         else:
             # User already exists, set error message
@@ -223,7 +224,7 @@ def learn_cities():
 def statistics():
     if not user_logged(): return redirect(url_for('login'))
     # Example: Retrieve statistics data from database
-    num_registered_users = user_queries.count_users()
+    num_registered_users = count_users()
     num_total_subjects = total_subjects()
     num_unexplored_subjects = unexplored_subjects()
     num_repeat_users = repeat_users()
