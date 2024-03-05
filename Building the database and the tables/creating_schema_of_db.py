@@ -11,11 +11,11 @@ connection = mysql.connector.connect(
 cursor = connection.cursor()
 
 # Create the FunGeo database
-cursor.execute("CREATE DATABASE IF NOT EXISTS FunGeo6")
+cursor.execute("CREATE DATABASE IF NOT EXISTS FunGeo")
 connection.commit()
 
 # Switch to the FunGeo database
-cursor.execute("USE FunGeo6")
+cursor.execute("USE FunGeo")
 
 # Create the 'user' table
 cursor.execute("""

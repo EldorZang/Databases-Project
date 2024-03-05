@@ -8,8 +8,8 @@ import zipfile
 connection = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="root",
-    database="fungeo"
+    password="123456",
+    database="FunGeo"
 )
 
 # Create a cursor object to interact with the database
@@ -118,11 +118,16 @@ def insert_continent_data():
     for value in continent_values:
         insert_data("Continent", ["continent_name"], (value,))
 
-# Uncomment the function calls based on your needs
-#insert_continent_data()
-#insert_country_data()
-#insert_city_data()
-insert_capital_data()
+def insert_subjects():
+    subjects_values = ["Flags","Capitals_Cities","Currencies"]
+    for value in subjects_values:
+        insert_data("subject", ["subject_name"], (value,))
 
+# Uncomment the function calls based on your needs
+insert_continent_data()
+insert_country_data()
+insert_city_data()
+insert_capital_data()
+insert_subjects()
 # Close the connection
 connection.close()
