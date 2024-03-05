@@ -6,8 +6,8 @@ def get_user_id(username):
 
 def register(username, password):
     try:
-        params = {'username': username, 'password_hash': password}
-        execute_update("INSERT INTO User (username, password_hash) VALUES (%(username)s, %(password_hash)s)", params)
+        params = {'username': username, 'password': password}
+        execute_update("INSERT INTO User (username, password) VALUES (%(username)s, %(password)s)", params)
     except IntegrityDataError as err:
         return False
     except DatabaseQueryError as err:
@@ -18,8 +18,8 @@ def register(username, password):
     
 def authenticate_login(username, password):
     try:
-        params = {'username': username, 'password_hash': password}
-        res = execute_query("SELECT * FROM User WHERE username = %(username)s AND password_hash = %(password_hash)s", params)
+        params = {'username': username, 'password': password}
+        res = execute_query("SELECT * FROM User WHERE username = %(username)s AND password = %(password)s", params)
         #if not res:
         #    raise AuthenticationError("Invalid username or password.")
         return res
@@ -28,8 +28,8 @@ def authenticate_login(username, password):
 
 def update_password(username, newpassword):
     try:
-        params = {'username': username, 'new_password_hash': newpassword}
-        execute_update("UPDATE User SET password_hash = %(new_password_hash)s WHERE username = %(username)s", params)
+        params = {'username': username, 'new_password': newpassword}
+        execute_update("UPDATE User SET password = %(new_password)s WHERE username = %(username)s", params)
     except DatabaseQueryError as err:
         raise DatabaseError("An error occurred while updating password.") from err
 

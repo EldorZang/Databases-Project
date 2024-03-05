@@ -20,16 +20,16 @@
 -- 1. User Management
 
 -- Register a new user
-INSERT INTO User (username, password_hash) VALUES ($username, $password_hash);
+INSERT INTO User (username, password) VALUES ($username, $password);
 
 -- Authenticate a user
-SELECT * FROM User WHERE username = $username AND password_hash = $password_hash;
+SELECT * FROM User WHERE username = $username AND password = $password;
 
 -- Retrieve user information by username
 SELECT * FROM User WHERE username = $username;
 
 -- Update user password
-UPDATE User SET password_hash = $new_password_hash WHERE username = $username;
+UPDATE User SET password = $new_password WHERE username = $username;
 
 -- Delete user's profile and related data
 DELETE FROM User WHERE username = '$username';
