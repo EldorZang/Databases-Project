@@ -8,7 +8,7 @@ import zipfile
 connection = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="root",
+    password="123456",
     database="fungeo"
 )
 
@@ -118,11 +118,18 @@ def insert_continent_data():
     for value in continent_values:
         insert_data("Continent", ["continent_name"], (value,))
 
+def insert_subjects():
+    subjects_values = ["Flags","Capitals_Cities","Currencies"]
+    for value in subjects_values:
+        insert_data("subject", ["subject_name"], (value,))
+
 # Uncomment the function calls based on your needs
 #insert_continent_data()
 #insert_country_data()
 #insert_city_data()
-insert_capital_data()
+#insert_capital_data()
+insert_subjects()
+
 
 # Close the connection
 connection.close()

@@ -102,11 +102,42 @@ def get_captial_cities_question():
     wrong_answers = [x['city_name'] for x in wrong_answers_data]
     return (question,correct_answer,wrong_answers)
 
+def get_currency_question():
+    # Step 1: Select a random currency and a country where it's used
+    question_data = (dbconnection.execute_query("""
+                                                SELECT Country.currency AS question,
+                                                Country.country_name AS correct_option,
+                                                Country.currency,
+                                                Country.continent_name,
+                                                Country.country_code
+                                                FROM Country 
+                                                ORDER BY RAND()
+                                                LIMIT 1"""))[0]
+    
+    # Step 2: Select three random countries from the same continent as options, excluding the country where the currency is used
+    params = {'country_code': question_data['country_code'], 'currency': question_data['currency'],'continent_name':question_data['continent_name']}
+    wrong_answers_data = dbconnection.execute_query("""
+                                                    SELECT DISTINCT
+                                                    country_name
+                                                    FROM Country
+                                                    WHERE country_code != %(country_code)s 
+                                                    AND currency !=  %(currency)s 
+                                                    AND continent_name = %(continent_name)s 
+                                                    ORDER BY RAND()
+                                                    LIMIT 3""",params)
+    question = question_data['question']
+    correct_answer = question_data['correct_option']
+    wrong_answers = [x['country_name'] for x in wrong_answers_data]
+    return (question,correct_answer,wrong_answers)
+
+
+
 
 def get_test(test_length,subject):
       test_funcs = {
             'Flags': get_flag_question,
-            'Capitals_Cities': get_captial_cities_question
+            'Capitals_Cities': get_captial_cities_question,
+            'Currencies': get_currency_question
       }
       return get_test_data(test_length,test_funcs[subject])
 
