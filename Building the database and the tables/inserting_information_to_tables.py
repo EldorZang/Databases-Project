@@ -2,7 +2,6 @@ import mysql.connector
 import pandas as pd
 import random
 import string
-import zipfile
 
 # Connect to the MySQL server
 connection = mysql.connector.connect(
@@ -118,16 +117,46 @@ def insert_continent_data():
     for value in continent_values:
         insert_data("Continent", ["continent_name"], (value,))
 
+# Function to insert data into the Subject table
 def insert_subjects():
     subjects_values = ["Flags of countries","Capital cities of countries","Currencies of countries","Biggest city in country (out of options)"]
     for value in subjects_values:
         insert_data("Subject", ["subject_name"], (value,))
 
+# Function to insert data into the User table
+def insert_users():
+    # Insert 200 users
+    for i in range(1, 201):
+        username = f"user{i}"
+        password = f"user{i}"
+        # Insert user into the User table
+        insert_data("User", ["username", "password"], (username, password))
+
+def insert_grades():
+    # Define the range of user IDs and subject IDs
+    user_ids = list(range(1, 201)) # Assuming subject IDs are from 1 to 200
+    subject_ids = list(range(1, 5))  # Assuming subject IDs are from 1 to 4
+
+    # Iterate through each user and assign grades for two random subjects
+    for user_id in user_ids:
+        # Choose two random subjects
+        selected_subjects = random.sample(subject_ids, 2)
+
+        # Generate random grades divisible by 10 for the selected subjects
+        grades = [random.randint(0, 10) * 10 for _ in range(2)]
+
+        # Insert grades into the Exam table
+        for subject_id, grade in zip(selected_subjects, grades):
+            insert_data("Exam", ["user_id", "subject_id","grade"], (user_id, subject_id,grade))
+            
 # Uncomment the function calls based on your needs
-#insert_continent_data()
-#insert_country_data()
-#insert_city_data()
-#insert_capital_data()
+insert_continent_data()
+insert_country_data()
+insert_city_data()
+insert_capital_data()
 insert_subjects()
+insert_users()
+insert_grades()
+
 # Close the connection
 connection.close()
