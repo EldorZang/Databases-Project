@@ -23,7 +23,7 @@ class IntegrityDataError(Exception):
         self.message = message
 
     def __str__(self):
-        return f"User Exists Error: {self.message}"
+        return f"IntegrityDataError: {self.message}"
 
 class AuthenticationError(Exception):
     def __init__(self, message):

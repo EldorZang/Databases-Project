@@ -1,6 +1,9 @@
 from mysql.connector import IntegrityError
 import dbconnection
 from dbconnection import DatabaseError,GeneralError
+def get_user_id(username):
+        params = {'username': username}
+        return (dbconnection.execute_query("SELECT user_id from user where username = %(username)s",params)[0]['user_id'])
 
 def register(username, password):
     try:
@@ -33,6 +36,8 @@ def update_password(username, newpassword):
 
 def delete_user(username):
     try:
+        params = {'user_id': get_user_id(username)}
+        dbconnection.execute_update("DELETE FROM Exam WHERE user_id = %(user_id)s", params)
         params = {'username': username}
         dbconnection.execute_update("DELETE FROM User WHERE username = %(username)s", params)
     except dbconnection.DatabaseQueryError as err:

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Font Awesome for icons -->
+</head>
+<body>
+    <div class="container2">
+        <h1>{{ subject }}</h1>
+    <form action="/submit_test" method="POST">
+        {% for question, options in questions.items() %}
+        <div class="question">
+            <div>
+            {% if subject == 'Flags' %}
+                <img src="{{ question }}" alt="Flag" class="flag-image-big">
+            {% else %}
+                <strong>{{ question }}</strong>
+            {% endif %}
+            </div>
+            <br>
+            {% for option in options %}
+            <input type="radio" name="{{ question }}" value="{{ option }}" id="{{ question }}_{{ option }}"
+            {% if loop.first %} checked {% endif %} required>
+            <label for="{{ question }}_{{ option }}">{{ option }}</label>
+            {% endfor %}
+        </div>
+                    <br>
+
+        {% endfor %}
+        <input type="submit" value="Submit">
+    </form>
+    </div>
+</body>
+
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+</head>
+
+
+
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+    <div class="container2">
+    <h1>Test Result</h1>
+    <p>You answered {{ correct_count }} out of {{ total_questions }} questions correctly.</p>
+    <p> Your Score is {{ test_score }}%</p>
+    <h1>Test Summary</h1>
+
+    {% for question, options in questions.items() %}
+    <div class="question">
+        <div>
+            {% if subject == 'Flags' %}
+            <img src="{{ question }}" alt="Flag" class="flag-image-big">
+            {% else %}
+            <strong>{{ question }}</strong>
+            {% endif %}
+        </div>
+        <br>
+        {% for option in options %}
+        {% if user_answers[question] == option %}
+            {% if user_answers[question] == correct_answers[question] %}
+                <label class='option_correct'>{{ option }}</label>
+            {% else %}
+                <label class='option_wrong'>{{ option }}</label>
+            {% endif %}
+        {% elif option == correct_answers[question] %}
+            <label class='correct_not_chosen'>{{ option }} - Correct Answer</label>
+        {% else %}
+        <label>{{ option }}</label>
+        {% endif %}
+
+
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+<a href="/main_menu" class="menu-option">Back to Main Menu</a>
+</div>
+</body>
+
+</html>

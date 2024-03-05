@@ -1,7 +1,7 @@
 import json
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 from learn_queries import get_countries_data , get_complex_data
-import user_queries
+import user_queries,test_queries
 from dbconnection import DatabaseConnectionError, DatabaseQueryError
 from user_queries import count_users
 from site_queries import total_subjects , unexplored_subjects , repeat_users , all_subjects ,top_scores_for_subject
@@ -11,6 +11,14 @@ app.secret_key = 'secret_key123'
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
 
+tests_length = 10
+
+
+def user_logged():
+    if 'username' in session:
+        return True
+    return False
+
 # Define custom error pages
 @app.errorhandler(DatabaseConnectionError)
 @app.errorhandler(DatabaseQueryError)
@@ -18,7 +26,60 @@ app.config['SESSION_COOKIE_SECURE'] = True
 def handle_database_error(error):
     return render_template('error.html', error=error), 500
 
+@app.route('/test_menu')
+def test_menu():
+        if not user_logged(): return redirect(url_for('login'))
+        return render_template('test_menu.html')
 
+@app.route('/test')
+def test():
+        if not user_logged(): return redirect(url_for('login'))
+        subject = request.args.get('subject')
+        
+        if not subject: return redirect(url_for('test_menu'))
+        test,test_correct = test_queries.get_test(tests_length,subject)
+        app.test = test
+        app.test_correct = test_correct
+        app.subject = subject
+
+        return render_template('test.html', questions=test,subject=subject)
+
+@app.route('/submit_test', methods=['POST'])
+def submit_test():
+    # Get user's answers from the form
+    user_answers = {}
+    questions = app.test
+    correct_answers = app.test_correct
+    for question in questions.keys():
+        user_answers[question] = request.form.get(question, '')
+
+    # Calculate correct count
+    correct_count = 0
+    for question, answer in user_answers.items():
+        if answer == correct_answers.get(question):
+            correct_count += 1
+
+    app.correct_count = correct_count
+    app.test_score = int(round((correct_count/len(questions))*100,0))
+    app.user_answers = user_answers
+
+    test_queries.update_user_test_score(session['username'],app.subject,app.test_score)
+    # Render the result page with the user's answers and correct count
+    return redirect(url_for('test_result'))
+    
+
+@app.route('/test_result')
+def test_result():
+        if not user_logged(): return redirect(url_for('login'))
+        questions = app.test
+        correct_answers = app.test_correct
+        user_answers = app.user_answers
+        correct_count = app.correct_count
+        test_score = app.test_score
+        subject = app.subject
+        return render_template('test_result.html', questions=questions, correct_answers=correct_answers, user_answers=user_answers, correct_count=correct_count,
+                            total_questions=len(questions),test_score=test_score,subject=subject)
+    
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -44,6 +105,7 @@ def login():
 
 @app.route('/main_menu')
 def main_menu():
+    if not user_logged(): return redirect(url_for('login'))
     return render_template('main_menu.html')
 
 @app.route('/select_topic', methods=['POST'])
@@ -87,43 +149,42 @@ def select_topic():
 
 @app.route('/user_personal_area', methods=['GET', 'POST'])
 def personal_area():
-    if 'username' in session:
-        current_username = session['username']  # Retrieve current username from session
-        if request.method == 'GET':
-            # Retrieve additional statistics
-            subjects_studied = user_queries.amount_of_subjects_studied(current_username)
-            average_score = user_queries.average_score(current_username)
-            if average_score is None:
-                average_score = 0
-            exclusive_subjects = user_queries.subjects_unstudied_by_others(current_username)
-            highest_grade_subjects = user_queries.subjects_with_higher_grades(current_username)
-            
-            return render_template('user_personal_area.html', current_username=current_username,
-                                   subjects_studied=subjects_studied,
-                                   average_score=average_score, exclusive_subjects=exclusive_subjects,
-                                   highest_grade_subjects=highest_grade_subjects)
-        if request.method == 'POST':
-            newPassword = request.form['newPassword']
-            user_queries.update_password(current_username, newPassword)
-            return redirect(url_for('main_menu'))
+    if not user_logged(): return redirect(url_for('login'))
 
+    current_username = session['username']  # Retrieve current username from session
+    if request.method == 'GET':
+        # Retrieve additional statistics
+        subjects_studied = user_queries.amount_of_subjects_studied(current_username)
+        average_score = user_queries.average_score(current_username)
+        if average_score is None:
+            average_score = 0
+        exclusive_subjects = user_queries.subjects_unstudied_by_others(current_username)
+        highest_grade_subjects = user_queries.subjects_with_higher_grades(current_username)
+        
+        return render_template('user_personal_area.html', current_username=current_username,
+                                subjects_studied=subjects_studied,
+                                average_score=average_score, exclusive_subjects=exclusive_subjects,
+                                highest_grade_subjects=highest_grade_subjects)
+    if request.method == 'POST':
+        newPassword = request.form['newPassword']
+        user_queries.update_password(current_username, newPassword)
+        return redirect(url_for('main_menu'))
 
-    else:
-        return redirect(url_for('login'))  # Redirect to login page if user not logged in
 
 
 @app.route('/logout')
 def logout():
+    if not user_logged(): return redirect(url_for('login'))
     # Clear username from session
     session.pop('username', None)
     return redirect(url_for('login'))  # Redirect to login page after logout
 
 @app.route('/delete_user')
 def delete_user():
-    if 'username' in session:
-        current_username = session['username']
-        user_queries.delete_user(current_username)
-        session.pop('username', None)
+    if not user_logged(): return redirect(url_for('login'))
+    current_username = session['username']
+    user_queries.delete_user(current_username)
+    session.pop('username', None)
 
     return redirect(url_for('login'))  # Redirect to login page after logout
 
@@ -145,6 +206,7 @@ def register():
 
 @app.route('/learn_results')
 def learn_results():
+    if not user_logged(): return redirect(url_for('login'))
     data = app.data
     columns = json.loads(request.args.get('options'))
     return render_template('learn_results.html', countries=data,options=columns)
@@ -152,6 +214,7 @@ def learn_results():
 
 @app.route('/learn', methods=['GET', 'POST'])
 def learn():
+    if not user_logged(): return redirect(url_for('login'))
     if request.method == 'POST':
         country_input = request.form['searchInput']
         columns = request.form.getlist('option')
@@ -174,6 +237,7 @@ def learn():
 
 @app.route('/statistics')
 def statistics():
+    if not user_logged(): return redirect(url_for('login'))
     # Example: Retrieve statistics data from database
     num_registered_users = count_users()
     num_total_subjects = total_subjects()
@@ -189,6 +253,7 @@ def statistics():
 
 @app.route('/top_scores', methods=['POST'])
 def top_scores():
+    if not user_logged(): return redirect(url_for('login'))
     data = request.get_json()
     subject = data.get('subject')
     # Assuming you have a function to retrieve top scores based on the selected subject
