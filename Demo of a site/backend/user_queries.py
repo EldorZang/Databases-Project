@@ -4,7 +4,7 @@ def get_user_id(username):
         params = {'username': username}
         return (execute_query("SELECT user_id from user where username = %(username)s",params)[0]['user_id'])
 
-def register(username, password):
+def register_user(username, password):
     try:
         params = {'username': username, 'password': password}
         execute_update("INSERT INTO User (username, password) VALUES (%(username)s, %(password)s)", params)
@@ -33,7 +33,7 @@ def update_password(username, newpassword):
     except DatabaseQueryError as err:
         raise DatabaseError("An error occurred while updating password.") from err
 
-def delete_user(username):
+def delete_specific_user(username):
     try:
         params = {'user_id': get_user_id(username)}
         execute_update("DELETE FROM Exam WHERE user_id = %(user_id)s", params)

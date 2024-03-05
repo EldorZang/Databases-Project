@@ -146,7 +146,8 @@ def logout():
 def delete_user():
     if not user_logged(): return redirect(url_for('login'))
     current_username = session['username']
-    delete_user(current_username)
+    
+    delete_specific_user(current_username)
     session.pop('username', None)
 
     return redirect(url_for('login'))  # Redirect to login page after logout
@@ -157,7 +158,7 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if register(username, password):
+        if register_user(username, password):
             return redirect(url_for('login'))  # Redirect to login page after registration
         else:
             # User already exists, set error message
