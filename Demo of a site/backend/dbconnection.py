@@ -93,6 +93,11 @@ def execute_update(query, params=None):
     try:
         connection = connect_db()
         cursor = connection.cursor(dictionary=True)
+        if params:
+            formatted_query = query.format(**params)
+        else:
+            formatted_query = query
+        print("Executing update:", formatted_query)
         cursor.execute(query, params)
         connection.commit()
     except IntegrityError as err:
